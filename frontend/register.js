@@ -69,7 +69,6 @@ registerForm.addEventListener("submit", async function (event) {
 
         registerBtn.disabled = false;
         registerBtn.textContent = "Create Account";
-
     }
 
 });
