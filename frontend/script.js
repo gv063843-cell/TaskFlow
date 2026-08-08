@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:8001";
+const API = "https://taskflow-api-ax00.onrender.com";
 
 // =========================
 // Get Login Token
@@ -214,7 +214,6 @@ async function completeTask(taskId) {
 
     try {
 
-        // Get task
         const response = await fetch(
             `${API}/tasks/${taskId}`,
             {
@@ -228,7 +227,6 @@ async function completeTask(taskId) {
 
         if (!task) return;
 
-        // Update task
         const updateResponse = await fetch(
             `${API}/tasks/${taskId}`,
             {
@@ -269,9 +267,7 @@ async function deleteTask(taskId) {
 
     if (!checkLogin()) return;
 
-    if (!confirm("Delete this task?")) {
-        return;
-    }
+    if (!confirm("Delete this task?")) return;
 
     try {
 
@@ -519,9 +515,10 @@ const showAllBtn =
 if (showAllBtn) {
 
     showAllBtn.addEventListener("click", () => {
-        loadTasks();
-    });
 
+        loadTasks();
+
+    });
 }
 
 // =========================
@@ -532,11 +529,12 @@ window.addEventListener("load", () => {
     loadTasks();
 
 });
+
 // =========================
 // Logout
 // =========================
-
-const logoutBtn = document.getElementById("logoutBtn");
+const logoutBtn =
+    document.getElementById("logoutBtn");
 
 if (logoutBtn) {
 
@@ -547,5 +545,4 @@ if (logoutBtn) {
         window.location.href = "login.html";
 
     });
-
 }
