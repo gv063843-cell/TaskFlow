@@ -24,7 +24,9 @@ app = FastAPI(
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://wonderful-licorice-7b4921.netlify.app"
+    ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
