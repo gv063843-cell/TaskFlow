@@ -1,14 +1,9 @@
 const API = "https://taskflow-api-ax00.onrender.com";
 
 // =========================
-// Current Project ID
-// =========================
-let PROJECT_ID = null;
-
-
-// =========================
 // Get Login Token
 // =========================
+
 function getToken() {
     return localStorage.getItem("token");
 }
@@ -17,6 +12,7 @@ function getToken() {
 // =========================
 // Authorization Headers
 // =========================
+
 function getAuthHeaders() {
 
     const token = getToken();
@@ -41,14 +37,13 @@ function getJsonHeaders() {
 // =========================
 // Check Login
 // =========================
+
 function checkLogin() {
 
     const token = getToken();
 
     if (!token) {
-
         window.location.href = "login.html";
-
         return false;
     }
 
@@ -59,6 +54,7 @@ function checkLogin() {
 // =========================
 // Handle API Response
 // =========================
+
 async function handleResponse(response) {
 
     if (response.status === 401) {
@@ -78,7 +74,21 @@ async function handleResponse(response) {
 
         console.error("API Error:", errorText);
 
-        alert("API Error: " + response.status);
+        try {
+
+            const errorData = JSON.parse(errorText);
+
+            alert(
+                "API Error: " +
+                response.status +
+                " - " +
+                (errorData.detail || "Something went wrong")
+            );
+
+        } catch {
+
+            alert("API Error: " + response.status);
+        }
 
         return null;
     }
@@ -88,11 +98,29 @@ async function handleResponse(response) {
 
 
 // =========================
-// Get Current User's Project
+// Elements
 // =========================
-async function loadProject() {
 
-    if (!checkLogin()) return false;
+const taskList =
+    document.getElementById("taskList");
+
+const projectSelect =
+    document.getElementById("projectSelect");
+
+const projectSelectTask =
+    document.getElementById("projectSelectTask");
+
+const projectSelectAI =
+    document.getElementById("projectSelectAI");
+
+
+// =========================
+// Load Projects
+// =========================
+
+async function loadProjects() {
+
+    if (!checkLogin()) return;
 
     try {
 
@@ -104,93 +132,362 @@ async function loadProject() {
             }
         );
 
-        const projects = await handleResponse(response);
+        const projects =
+            await handleResponse(response);
 
-        if (!projects) return false;
+        if (!projects) return;
 
 
-        // No project found
+        // Clear project dropdowns
+
+        if (projectSelect) {
+
+            projectSelect.innerHTML = `
+                <option value="">
+                    Select Project
+                </option>
+            `;
+
+        }
+
+        if (projectSelectTask) {
+
+            projectSelectTask.innerHTML = `
+                <option value="">
+                    Select Project First
+                </option>
+            `;
+
+        }
+
+        if (projectSelectAI) {
+
+            projectSelectAI.innerHTML = `
+                <option value="">
+                    Select Project First
+                </option>
+            `;
+
+        }
+
+
+        // No projects
+
         if (projects.length === 0) {
 
-            alert("No project found for this account.");
+            console.log("No projects found.");
 
-            return false;
+            return;
         }
 
 
-        // Find default "My Tasks" project
-        const defaultProject = projects.find(
-            project => project.name === "My Tasks"
-        );
+        // Add projects
+
+        projects.forEach(project => {
+
+            const option1 =
+                document.createElement("option");
+
+            option1.value = project.id;
+
+            option1.textContent =
+                project.name;
+
+            if (projectSelect) {
+
+                projectSelect.appendChild(option1);
+            }
 
 
-        if (defaultProject) {
+            const option2 =
+                document.createElement("option");
 
-            PROJECT_ID = defaultProject.id;
+            option2.value = project.id;
 
-        } else {
+            option2.textContent =
+                project.name;
 
-            // If My Tasks is not available,
-            // use the first project
-            PROJECT_ID = projects[0].id;
+            if (projectSelectTask) {
+
+                projectSelectTask.appendChild(option2);
+            }
+
+
+            const option3 =
+                document.createElement("option");
+
+            option3.value = project.id;
+
+            option3.textContent =
+                project.name;
+
+            if (projectSelectAI) {
+
+                projectSelectAI.appendChild(option3);
+            }
+
+        });
+
+
+        // Select first project automatically
+
+        if (projects.length > 0) {
+
+            const firstProject =
+                projects[0].id;
+
+            if (projectSelect) {
+                projectSelect.value = firstProject;
+            }
+
+            if (projectSelectTask) {
+                projectSelectTask.value = firstProject;
+            }
+
+            if (projectSelectAI) {
+                projectSelectAI.value = firstProject;
+            }
         }
 
 
-        console.log(
-            "Current Project ID:",
-            PROJECT_ID
-        );
+        // Load tasks after projects
 
-        return true;
+        loadTasks();
 
     } catch (error) {
 
-        console.error(
-            "Project loading error:",
-            error
-        );
+        console.error(error);
 
-        alert("Project load nahi ho paya.");
-
-        return false;
+        alert("Projects load nahi ho rahe.");
     }
 }
 
 
 // =========================
-// Task List
+// Create Project
 // =========================
-const taskList =
-    document.getElementById("taskList");
+
+const createProjectBtn =
+    document.getElementById("createProjectBtn");
+
+
+if (createProjectBtn) {
+
+    createProjectBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (!checkLogin()) return;
+
+
+            const name =
+                document
+                    .getElementById("projectName")
+                    .value
+                    .trim();
+
+
+            const description =
+                document
+                    .getElementById("projectDescription")
+                    .value
+                    .trim();
+
+
+            if (name === "") {
+
+                alert("Enter Project Name");
+
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/projects/`,
+                        {
+                            method: "POST",
+
+                            headers:
+                                getJsonHeaders(),
+
+                            body:
+                                JSON.stringify({
+                                    name: name,
+                                    description:
+                                        description
+                                })
+                        }
+                    );
+
+
+                const project =
+                    await handleResponse(response);
+
+
+                if (!project) return;
+
+
+                alert(
+                    "✅ Project Created Successfully"
+                );
+
+
+                document
+                    .getElementById("projectName")
+                    .value = "";
+
+
+                document
+                    .getElementById("projectDescription")
+                    .value = "";
+
+
+                // Reload projects
+
+                await loadProjects();
+
+
+                // Select newly created project
+
+                if (projectSelect) {
+
+                    projectSelect.value =
+                        project.id;
+                }
+
+
+                if (projectSelectTask) {
+
+                    projectSelectTask.value =
+                        project.id;
+                }
+
+
+                if (projectSelectAI) {
+
+                    projectSelectAI.value =
+                        project.id;
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Project create nahi ho paya."
+                );
+            }
+
+        }
+    );
+}
+
+
+// =========================
+// Sync Project Selection
+// =========================
+
+if (projectSelect) {
+
+    projectSelect.addEventListener(
+        "change",
+        () => {
+
+            const selected =
+                projectSelect.value;
+
+            if (projectSelectTask) {
+
+                projectSelectTask.value =
+                    selected;
+            }
+
+            if (projectSelectAI) {
+
+                projectSelectAI.value =
+                    selected;
+            }
+
+        }
+    );
+}
+
+
+if (projectSelectTask) {
+
+    projectSelectTask.addEventListener(
+        "change",
+        () => {
+
+            const selected =
+                projectSelectTask.value;
+
+            if (projectSelect) {
+
+                projectSelect.value =
+                    selected;
+            }
+
+            if (projectSelectAI) {
+
+                projectSelectAI.value =
+                    selected;
+            }
+
+        }
+    );
+}
+
+
+if (projectSelectAI) {
+
+    projectSelectAI.addEventListener(
+        "change",
+        () => {
+
+            const selected =
+                projectSelectAI.value;
+
+            if (projectSelect) {
+
+                projectSelect.value =
+                    selected;
+            }
+
+            if (projectSelectTask) {
+
+                projectSelectTask.value =
+                    selected;
+            }
+
+        }
+    );
+}
 
 
 // =========================
 // Load Tasks
 // =========================
+
 async function loadTasks() {
 
     if (!checkLogin()) return;
 
 
-    // Make sure project is loaded
-    if (!PROJECT_ID) {
-
-        const projectLoaded =
-            await loadProject();
-
-        if (!projectLoaded) return;
-    }
-
-
     try {
 
-        const response = await fetch(
-            `${API}/tasks/`,
-            {
-                method: "GET",
-                headers: getAuthHeaders()
-            }
-        );
+        const response =
+            await fetch(
+                `${API}/tasks/`,
+                {
+                    method: "GET",
+                    headers:
+                        getAuthHeaders()
+                }
+            );
 
 
         const tasks =
@@ -220,30 +517,36 @@ async function loadTasks() {
 
 
             li.innerHTML = `
-                <b>${task.title || "No Title"}</b>
+
+                <b>
+                    ${task.title || "No Title"}
+                </b>
 
                 <span class="task-status">
-                    Status : ${task.status || "Pending"}
+                    Status :
+                    ${task.status || "Pending"}
                 </span>
 
                 <button
                     class="complete-btn"
-                    onclick="completeTask(${task.id})">
+                    onclick="completeTask(${task.id})"
+                >
                     ✅ Complete
                 </button>
 
                 <button
                     class="delete-btn"
-                    onclick="deleteTask(${task.id})">
+                    onclick="deleteTask(${task.id})"
+                >
                     🗑 Delete
                 </button>
+
             `;
 
 
             taskList.appendChild(li);
 
         });
-
 
     } catch (error) {
 
@@ -259,103 +562,128 @@ async function loadTasks() {
 // =========================
 // Add New Task
 // =========================
-document
-    .getElementById("addTaskBtn")
-    .addEventListener("click", async () => {
+
+const addTaskBtn =
+    document.getElementById("addTaskBtn");
 
 
-        if (!checkLogin()) return;
+if (addTaskBtn) {
+
+    addTaskBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (!checkLogin()) return;
 
 
-        // Get project automatically
-        if (!PROJECT_ID) {
-
-            const projectLoaded =
-                await loadProject();
-
-            if (!projectLoaded) return;
-        }
+            const title =
+                document
+                    .getElementById("taskTitle")
+                    .value
+                    .trim();
 
 
-        const title =
-            document
-                .getElementById("taskTitle")
-                .value
-                .trim();
+            const priority =
+                document
+                    .getElementById("taskPriority")
+                    .value;
 
 
-        if (title === "") {
+            const projectId =
+                document
+                    .getElementById(
+                        "projectSelectTask"
+                    )
+                    .value;
 
-            alert("Enter Task Title");
 
-            return;
-        }
+            if (projectId === "") {
+
+                alert(
+                    "Please select a project first."
+                );
+
+                return;
+            }
 
 
-        try {
+            if (title === "") {
 
-            const response =
-                await fetch(
-                    `${API}/tasks/`,
-                    {
-                        method: "POST",
+                alert("Enter Task Title");
 
-                        headers:
-                            getJsonHeaders(),
+                return;
+            }
 
-                        body: JSON.stringify({
 
-                            title: title,
+            try {
 
-                            description: "",
+                const response =
+                    await fetch(
+                        `${API}/tasks/`,
+                        {
+                            method: "POST",
 
-                            priority: "medium",
+                            headers:
+                                getJsonHeaders(),
 
-                            due_date: null,
+                            body:
+                                JSON.stringify({
 
-                            status: "Pending",
+                                    title: title,
 
-                            project_id: PROJECT_ID
-                        })
-                    }
+                                    description: "",
+
+                                    priority: priority,
+
+                                    due_date: null,
+
+                                    status: "Pending",
+
+                                    project_id:
+                                        Number(projectId)
+
+                                })
+                        }
+                    );
+
+
+                const task =
+                    await handleResponse(response);
+
+
+                if (!task) return;
+
+
+                document
+                    .getElementById("taskTitle")
+                    .value = "";
+
+
+                alert(
+                    "✅ Task Added Successfully"
                 );
 
 
-            const task =
-                await handleResponse(response);
+                loadTasks();
 
+            } catch (error) {
 
-            if (!task) return;
+                console.error(error);
 
+                alert(
+                    "Task add nahi ho paya."
+                );
+            }
 
-            document
-                .getElementById("taskTitle")
-                .value = "";
-
-
-            alert(
-                "✅ Task Added Successfully"
-            );
-
-
-            loadTasks();
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                "Task add nahi ho paya."
-            );
         }
-
-    });
+    );
+}
 
 
 // =========================
 // Complete Task
 // =========================
+
 async function completeTask(taskId) {
 
     if (!checkLogin()) return;
@@ -368,7 +696,8 @@ async function completeTask(taskId) {
                 `${API}/tasks/${taskId}`,
                 {
                     method: "GET",
-                    headers: getAuthHeaders()
+                    headers:
+                        getAuthHeaders()
                 }
             );
 
@@ -389,25 +718,28 @@ async function completeTask(taskId) {
                     headers:
                         getJsonHeaders(),
 
-                    body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                        title: task.title,
+                            title:
+                                task.title,
 
-                        description:
-                            task.description,
+                            description:
+                                task.description,
 
-                        priority:
-                            task.priority,
+                            priority:
+                                task.priority,
 
-                        due_date:
-                            task.due_date,
+                            due_date:
+                                task.due_date,
 
-                        status:
-                            "Completed",
+                            status:
+                                "Completed",
 
-                        project_id:
-                            task.project_id
-                    })
+                            project_id:
+                                task.project_id
+
+                        })
                 }
             );
 
@@ -423,7 +755,6 @@ async function completeTask(taskId) {
 
         loadTasks();
 
-
     } catch (error) {
 
         console.error(error);
@@ -438,13 +769,19 @@ async function completeTask(taskId) {
 // =========================
 // Delete Task
 // =========================
+
 async function deleteTask(taskId) {
 
     if (!checkLogin()) return;
 
 
-    if (!confirm("Delete this task?"))
+    if (
+        !confirm(
+            "Delete this task?"
+        )
+    ) {
         return;
+    }
 
 
     try {
@@ -454,15 +791,14 @@ async function deleteTask(taskId) {
                 `${API}/tasks/${taskId}`,
                 {
                     method: "DELETE",
-                    headers: getAuthHeaders()
+                    headers:
+                        getAuthHeaders()
                 }
             );
 
 
         const result =
-            await handleResponse(
-                response
-            );
+            await handleResponse(response);
 
 
         if (!result) return;
@@ -474,7 +810,6 @@ async function deleteTask(taskId) {
 
 
         loadTasks();
-
 
     } catch (error) {
 
@@ -490,295 +825,335 @@ async function deleteTask(taskId) {
 // =========================
 // Statistics
 // =========================
-document
-    .getElementById("statsBtn")
-    .addEventListener("click", async () => {
+
+const statsBtn =
+    document.getElementById("statsBtn");
 
 
-        if (!checkLogin()) return;
+if (statsBtn) {
+
+    statsBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (!checkLogin()) return;
 
 
-        try {
+            try {
 
-            const response =
-                await fetch(
-                    `${API}/projects/stats/summary`,
-                    {
-                        method: "GET",
-                        headers: getAuthHeaders()
-                    }
+                const response =
+                    await fetch(
+                        `${API}/projects/stats/summary`,
+                        {
+                            method: "GET",
+
+                            headers:
+                                getAuthHeaders()
+                        }
+                    );
+
+
+                const data =
+                    await handleResponse(
+                        response
+                    );
+
+
+                if (!data) return;
+
+
+                let total = 0;
+
+                let completed = 0;
+
+                let pending = 0;
+
+
+                data.forEach(project => {
+
+                    total +=
+                        project.total_tasks || 0;
+
+                    completed +=
+                        project.completed_tasks || 0;
+
+                    pending +=
+                        project.pending_tasks || 0;
+
+                });
+
+
+                document
+                    .getElementById("stats")
+                    .innerHTML = `
+
+                        📋 Total Tasks :
+                        <b>${total}</b>
+
+                        <br><br>
+
+                        ✅ Completed :
+                        <b>${completed}</b>
+
+                        <br><br>
+
+                        ⏳ Pending :
+                        <b>${pending}</b>
+
+                    `;
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Statistics load nahi ho payi."
                 );
+            }
 
-
-            const data =
-                await handleResponse(
-                    response
-                );
-
-
-            if (!data) return;
-
-
-            let total = 0;
-
-            let completed = 0;
-
-            let pending = 0;
-
-
-            data.forEach(project => {
-
-                total +=
-                    project.total_tasks || 0;
-
-                completed +=
-                    project.completed_tasks || 0;
-
-                pending +=
-                    project.pending_tasks || 0;
-
-            });
-
-
-            document
-                .getElementById("stats")
-                .innerHTML = `
-
-                    📋 Total Tasks :
-                    <b>${total}</b>
-
-                    <br><br>
-
-                    ✅ Completed :
-                    <b>${completed}</b>
-
-                    <br><br>
-
-                    ⏳ Pending :
-                    <b>${pending}</b>
-                `;
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                "Statistics load nahi ho payi."
-            );
         }
-
-    });
+    );
+}
 
 
 // =========================
 // AI Quick Add
 // =========================
-document
-    .getElementById("aiBtn")
-    .addEventListener("click", async () => {
+
+const aiBtn =
+    document.getElementById("aiBtn");
 
 
-        if (!checkLogin()) return;
+if (aiBtn) {
+
+    aiBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (!checkLogin()) return;
 
 
-        // Get project automatically
-        if (!PROJECT_ID) {
-
-            const projectLoaded =
-                await loadProject();
-
-            if (!projectLoaded) return;
-        }
+            const text =
+                document
+                    .getElementById("aiText")
+                    .value
+                    .trim();
 
 
-        const text =
-            document
-                .getElementById("aiText")
-                .value
-                .trim();
+            const projectId =
+                document
+                    .getElementById(
+                        "projectSelectAI"
+                    )
+                    .value;
 
 
-        if (text === "") {
+            if (projectId === "") {
 
-            alert(
-                "Describe your task"
-            );
-
-            return;
-        }
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `${API}/tasks/quick-add`,
-                    {
-                        method: "POST",
-
-                        headers:
-                            getJsonHeaders(),
-
-                        body: JSON.stringify({
-
-                            description: text,
-
-                            project_id:
-                                PROJECT_ID
-                        })
-                    }
+                alert(
+                    "Please select a project first."
                 );
-
-
-            const data =
-                await handleResponse(
-                    response
-                );
-
-
-            if (!data) return;
-
-
-            alert(
-                "🤖 AI Task Created: " +
-                data.title
-            );
-
-
-            document
-                .getElementById("aiText")
-                .value = "";
-
-
-            loadTasks();
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                "AI Quick Add failed."
-            );
-        }
-
-    });
-
-
-// =========================
-// Search Task
-// =========================
-document
-    .getElementById("searchBtn")
-    .addEventListener("click", async () => {
-
-
-        if (!checkLogin()) return;
-
-
-        const text =
-            document
-                .getElementById("searchText")
-                .value
-                .trim();
-
-
-        if (text === "") {
-
-            loadTasks();
-
-            return;
-        }
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `${API}/tasks/search/?title=${encodeURIComponent(text)}`,
-                    {
-                        method: "GET",
-                        headers: getAuthHeaders()
-                    }
-                );
-
-
-            const tasks =
-                await handleResponse(
-                    response
-                );
-
-
-            if (!tasks) return;
-
-
-            taskList.innerHTML = "";
-
-
-            if (tasks.length === 0) {
-
-                taskList.innerHTML =
-                    `<li>No Task Found</li>`;
 
                 return;
             }
 
 
-            tasks.forEach(task => {
+            if (text === "") {
 
-                const li =
-                    document.createElement("li");
+                alert(
+                    "Describe your task"
+                );
 
-
-                li.innerHTML = `
-
-                    <b>${task.title}</b>
-
-                    <span class="task-status">
-                        Status :
-                        ${task.status || "Pending"}
-                    </span>
-
-                    <button
-                        class="complete-btn"
-                        onclick="completeTask(${task.id})">
-                        ✅ Complete
-                    </button>
-
-                    <button
-                        class="delete-btn"
-                        onclick="deleteTask(${task.id})">
-                        🗑 Delete
-                    </button>
-
-                `;
+                return;
+            }
 
 
-                taskList.appendChild(li);
+            try {
 
-            });
+                const response =
+                    await fetch(
+                        `${API}/tasks/quick-add`,
+                        {
+                            method: "POST",
+
+                            headers:
+                                getJsonHeaders(),
+
+                            body:
+                                JSON.stringify({
+
+                                    description:
+                                        text,
+
+                                    project_id:
+                                        Number(projectId)
+
+                                })
+                        }
+                    );
 
 
-        } catch (error) {
+                const data =
+                    await handleResponse(
+                        response
+                    );
 
-            console.error(error);
 
-            alert(
-                "Search failed."
-            );
+                if (!data) return;
+
+
+                alert(
+                    "🤖 AI Task Created: " +
+                    data.title
+                );
+
+
+                document
+                    .getElementById("aiText")
+                    .value = "";
+
+
+                loadTasks();
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "AI Quick Add failed."
+                );
+            }
+
         }
-
-    });
-
-
-// =========================
-// Show All Button
-// =========================
-const showAllBtn =
-    document.getElementById(
-        "showAllBtn"
     );
+}
+
+
+// =========================
+// Search Task
+// =========================
+
+const searchBtn =
+    document.getElementById("searchBtn");
+
+
+if (searchBtn) {
+
+    searchBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (!checkLogin()) return;
+
+
+            const text =
+                document
+                    .getElementById("searchText")
+                    .value
+                    .trim();
+
+
+            if (text === "") {
+
+                loadTasks();
+
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/tasks/search/?title=${encodeURIComponent(text)}`,
+                        {
+                            method: "GET",
+
+                            headers:
+                                getAuthHeaders()
+                        }
+                    );
+
+
+                const tasks =
+                    await handleResponse(
+                        response
+                    );
+
+
+                if (!tasks) return;
+
+
+                taskList.innerHTML = "";
+
+
+                if (tasks.length === 0) {
+
+                    taskList.innerHTML =
+                        `<li>No Task Found</li>`;
+
+                    return;
+                }
+
+
+                tasks.forEach(task => {
+
+                    const li =
+                        document.createElement("li");
+
+
+                    li.innerHTML = `
+
+                        <b>
+                            ${task.title}
+                        </b>
+
+                        <span class="task-status">
+
+                            Status :
+                            ${task.status || "Pending"}
+
+                        </span>
+
+                        <button
+                            class="complete-btn"
+                            onclick="completeTask(${task.id})"
+                        >
+                            ✅ Complete
+                        </button>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteTask(${task.id})"
+                        >
+                            🗑 Delete
+                        </button>
+
+                    `;
+
+
+                    taskList.appendChild(li);
+
+                });
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Search failed.");
+            }
+
+        }
+    );
+}
+
+
+// =========================
+// Show All
+// =========================
+
+const showAllBtn =
+    document.getElementById("showAllBtn");
 
 
 if (showAllBtn) {
@@ -795,33 +1170,11 @@ if (showAllBtn) {
 
 
 // =========================
-// Initial Load
-// =========================
-window.addEventListener(
-    "load",
-    async () => {
-
-        if (!checkLogin()) return;
-
-        // Load user's project first
-        const projectLoaded =
-            await loadProject();
-
-        if (!projectLoaded) return;
-
-        // Then load tasks
-        loadTasks();
-    }
-);
-
-
-// =========================
 // Logout
 // =========================
+
 const logoutBtn =
-    document.getElementById(
-        "logoutBtn"
-    );
+    document.getElementById("logoutBtn");
 
 
 if (logoutBtn) {
@@ -830,9 +1183,7 @@ if (logoutBtn) {
         "click",
         () => {
 
-            localStorage.removeItem(
-                "token"
-            );
+            localStorage.removeItem("token");
 
             window.location.href =
                 "login.html";
@@ -840,3 +1191,19 @@ if (logoutBtn) {
         }
     );
 }
+
+
+// =========================
+// Initial Load
+// =========================
+
+window.addEventListener(
+    "load",
+    () => {
+
+        if (!checkLogin()) return;
+
+        loadProjects();
+
+    }
+);
