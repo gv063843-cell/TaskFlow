@@ -1,5 +1,6 @@
 const API = "https://taskflow-api-ax00.onrender.com";
 
+
 // =========================
 // Get Login Token
 // =========================
@@ -15,20 +16,16 @@ function getToken() {
 
 function getAuthHeaders() {
 
-    const token = getToken();
-
     return {
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${getToken()}`
     };
 }
 
 
 function getJsonHeaders() {
 
-    const token = getToken();
-
     return {
-        "Authorization": `Bearer ${token}`,
+        "Authorization": `Bearer ${getToken()}`,
         "Content-Type": "application/json"
     };
 }
@@ -43,7 +40,9 @@ function checkLogin() {
     const token = getToken();
 
     if (!token) {
+
         window.location.href = "login.html";
+
         return false;
     }
 
@@ -68,30 +67,41 @@ async function handleResponse(response) {
         return null;
     }
 
+
     if (!response.ok) {
 
-        const errorText = await response.text();
+        const errorText =
+            await response.text();
 
-        console.error("API Error:", errorText);
+        console.error(
+            "API Error:",
+            errorText
+        );
 
         try {
 
-            const errorData = JSON.parse(errorText);
+            const errorData =
+                JSON.parse(errorText);
 
             alert(
                 "API Error: " +
                 response.status +
                 " - " +
-                (errorData.detail || "Something went wrong")
+                (errorData.detail ||
+                    "Something went wrong")
             );
 
         } catch {
 
-            alert("API Error: " + response.status);
+            alert(
+                "API Error: " +
+                response.status
+            );
         }
 
         return null;
     }
+
 
     return await response.json();
 }
@@ -115,142 +125,119 @@ const projectSelectAI =
 
 
 // =========================
-// Load Projects
+// LOAD PROJECTS
 // =========================
 
 async function loadProjects() {
 
     if (!checkLogin()) return;
 
+
     try {
 
-        const response = await fetch(
-            `${API}/projects/`,
-            {
-                method: "GET",
-                headers: getAuthHeaders()
-            }
-        );
+        const response =
+            await fetch(
+                `${API}/projects/`,
+                {
+                    method: "GET",
+                    headers:
+                        getAuthHeaders()
+                }
+            );
+
 
         const projects =
-            await handleResponse(response);
+            await handleResponse(
+                response
+            );
+
 
         if (!projects) return;
 
 
-        // Clear project dropdowns
-
-        if (projectSelect) {
-
-            projectSelect.innerHTML = `
-                <option value="">
-                    Select Project
-                </option>
-            `;
-
-        }
-
-        if (projectSelectTask) {
-
-            projectSelectTask.innerHTML = `
-                <option value="">
-                    Select Project First
-                </option>
-            `;
-
-        }
-
-        if (projectSelectAI) {
-
-            projectSelectAI.innerHTML = `
-                <option value="">
-                    Select Project First
-                </option>
-            `;
-
-        }
+        projectSelect.innerHTML = `
+            <option value="">
+                Select Project
+            </option>
+        `;
 
 
-        // No projects
-
-        if (projects.length === 0) {
-
-            console.log("No projects found.");
-
-            return;
-        }
+        projectSelectTask.innerHTML = `
+            <option value="">
+                Select Project First
+            </option>
+        `;
 
 
-        // Add projects
+        projectSelectAI.innerHTML = `
+            <option value="">
+                Select Project First
+            </option>
+        `;
+
 
         projects.forEach(project => {
+
 
             const option1 =
                 document.createElement("option");
 
-            option1.value = project.id;
+            option1.value =
+                project.id;
 
             option1.textContent =
                 project.name;
 
-            if (projectSelect) {
-
-                projectSelect.appendChild(option1);
-            }
+            projectSelect.appendChild(
+                option1
+            );
 
 
             const option2 =
                 document.createElement("option");
 
-            option2.value = project.id;
+            option2.value =
+                project.id;
 
             option2.textContent =
                 project.name;
 
-            if (projectSelectTask) {
-
-                projectSelectTask.appendChild(option2);
-            }
+            projectSelectTask.appendChild(
+                option2
+            );
 
 
             const option3 =
                 document.createElement("option");
 
-            option3.value = project.id;
+            option3.value =
+                project.id;
 
             option3.textContent =
                 project.name;
 
-            if (projectSelectAI) {
-
-                projectSelectAI.appendChild(option3);
-            }
+            projectSelectAI.appendChild(
+                option3
+            );
 
         });
 
-
-        // Select first project automatically
 
         if (projects.length > 0) {
 
             const firstProject =
                 projects[0].id;
 
-            if (projectSelect) {
-                projectSelect.value = firstProject;
-            }
+            projectSelect.value =
+                firstProject;
 
-            if (projectSelectTask) {
-                projectSelectTask.value = firstProject;
-            }
+            projectSelectTask.value =
+                firstProject;
 
-            if (projectSelectAI) {
-                projectSelectAI.value = firstProject;
-            }
+            projectSelectAI.value =
+                firstProject;
         }
 
-
-        // Load tasks after projects
 
         loadTasks();
 
@@ -258,22 +245,20 @@ async function loadProjects() {
 
         console.error(error);
 
-        alert("Projects load nahi ho rahe.");
+        alert(
+            "Projects load nahi ho rahe."
+        );
     }
 }
 
 
 // =========================
-// Create Project
+// CREATE PROJECT
 // =========================
 
-const createProjectBtn =
-    document.getElementById("createProjectBtn");
-
-
-if (createProjectBtn) {
-
-    createProjectBtn.addEventListener(
+document
+    .getElementById("createProjectBtn")
+    .addEventListener(
         "click",
         async () => {
 
@@ -282,21 +267,27 @@ if (createProjectBtn) {
 
             const name =
                 document
-                    .getElementById("projectName")
+                    .getElementById(
+                        "projectName"
+                    )
                     .value
                     .trim();
 
 
             const description =
                 document
-                    .getElementById("projectDescription")
+                    .getElementById(
+                        "projectDescription"
+                    )
                     .value
                     .trim();
 
 
             if (name === "") {
 
-                alert("Enter Project Name");
+                alert(
+                    "Enter Project Name"
+                );
 
                 return;
             }
@@ -315,16 +306,21 @@ if (createProjectBtn) {
 
                             body:
                                 JSON.stringify({
+
                                     name: name,
+
                                     description:
                                         description
+
                                 })
                         }
                     );
 
 
                 const project =
-                    await handleResponse(response);
+                    await handleResponse(
+                        response
+                    );
 
 
                 if (!project) return;
@@ -336,41 +332,30 @@ if (createProjectBtn) {
 
 
                 document
-                    .getElementById("projectName")
+                    .getElementById(
+                        "projectName"
+                    )
                     .value = "";
 
 
                 document
-                    .getElementById("projectDescription")
+                    .getElementById(
+                        "projectDescription"
+                    )
                     .value = "";
 
-
-                // Reload projects
 
                 await loadProjects();
 
 
-                // Select newly created project
+                projectSelect.value =
+                    project.id;
 
-                if (projectSelect) {
+                projectSelectTask.value =
+                    project.id;
 
-                    projectSelect.value =
-                        project.id;
-                }
-
-
-                if (projectSelectTask) {
-
-                    projectSelectTask.value =
-                        project.id;
-                }
-
-
-                if (projectSelectAI) {
-
-                    projectSelectAI.value =
-                        project.id;
-                }
+                projectSelectAI.value =
+                    project.id;
 
             } catch (error) {
 
@@ -383,93 +368,62 @@ if (createProjectBtn) {
 
         }
     );
-}
 
 
 // =========================
-// Sync Project Selection
+// PROJECT SYNC
 // =========================
 
-if (projectSelect) {
+projectSelect.addEventListener(
+    "change",
+    () => {
 
-    projectSelect.addEventListener(
-        "change",
-        () => {
+        const value =
+            projectSelect.value;
 
-            const selected =
-                projectSelect.value;
+        projectSelectTask.value =
+            value;
 
-            if (projectSelectTask) {
-
-                projectSelectTask.value =
-                    selected;
-            }
-
-            if (projectSelectAI) {
-
-                projectSelectAI.value =
-                    selected;
-            }
-
-        }
-    );
-}
+        projectSelectAI.value =
+            value;
+    }
+);
 
 
-if (projectSelectTask) {
+projectSelectTask.addEventListener(
+    "change",
+    () => {
 
-    projectSelectTask.addEventListener(
-        "change",
-        () => {
+        const value =
+            projectSelectTask.value;
 
-            const selected =
-                projectSelectTask.value;
+        projectSelect.value =
+            value;
 
-            if (projectSelect) {
-
-                projectSelect.value =
-                    selected;
-            }
-
-            if (projectSelectAI) {
-
-                projectSelectAI.value =
-                    selected;
-            }
-
-        }
-    );
-}
+        projectSelectAI.value =
+            value;
+    }
+);
 
 
-if (projectSelectAI) {
+projectSelectAI.addEventListener(
+    "change",
+    () => {
 
-    projectSelectAI.addEventListener(
-        "change",
-        () => {
+        const value =
+            projectSelectAI.value;
 
-            const selected =
-                projectSelectAI.value;
+        projectSelect.value =
+            value;
 
-            if (projectSelect) {
-
-                projectSelect.value =
-                    selected;
-            }
-
-            if (projectSelectTask) {
-
-                projectSelectTask.value =
-                    selected;
-            }
-
-        }
-    );
-}
+        projectSelectTask.value =
+            value;
+    }
+);
 
 
 // =========================
-// Load Tasks
+// LOAD TASKS
 // =========================
 
 async function loadTasks() {
@@ -491,7 +445,9 @@ async function loadTasks() {
 
 
         const tasks =
-            await handleResponse(response);
+            await handleResponse(
+                response
+            );
 
 
         if (!tasks) return;
@@ -513,7 +469,9 @@ async function loadTasks() {
         tasks.forEach(task => {
 
             const li =
-                document.createElement("li");
+                document.createElement(
+                    "li"
+                );
 
 
             li.innerHTML = `
@@ -523,9 +481,20 @@ async function loadTasks() {
                 </b>
 
                 <span class="task-status">
+
                     Status :
                     ${task.status || "Pending"}
+
                 </span>
+
+
+                <button
+                    class="edit-btn"
+                    onclick="editTask(${task.id})"
+                >
+                    ✏️ Edit
+                </button>
+
 
                 <button
                     class="complete-btn"
@@ -533,6 +502,7 @@ async function loadTasks() {
                 >
                     ✅ Complete
                 </button>
+
 
                 <button
                     class="delete-btn"
@@ -560,16 +530,12 @@ async function loadTasks() {
 
 
 // =========================
-// Add New Task
+// ADD TASK
 // =========================
 
-const addTaskBtn =
-    document.getElementById("addTaskBtn");
-
-
-if (addTaskBtn) {
-
-    addTaskBtn.addEventListener(
+document
+    .getElementById("addTaskBtn")
+    .addEventListener(
         "click",
         async () => {
 
@@ -578,14 +544,18 @@ if (addTaskBtn) {
 
             const title =
                 document
-                    .getElementById("taskTitle")
+                    .getElementById(
+                        "taskTitle"
+                    )
                     .value
                     .trim();
 
 
             const priority =
                 document
-                    .getElementById("taskPriority")
+                    .getElementById(
+                        "taskPriority"
+                    )
                     .value;
 
 
@@ -609,7 +579,9 @@ if (addTaskBtn) {
 
             if (title === "") {
 
-                alert("Enter Task Title");
+                alert(
+                    "Enter Task Title"
+                );
 
                 return;
             }
@@ -640,7 +612,9 @@ if (addTaskBtn) {
                                     status: "Pending",
 
                                     project_id:
-                                        Number(projectId)
+                                        Number(
+                                            projectId
+                                        )
 
                                 })
                         }
@@ -648,14 +622,18 @@ if (addTaskBtn) {
 
 
                 const task =
-                    await handleResponse(response);
+                    await handleResponse(
+                        response
+                    );
 
 
                 if (!task) return;
 
 
                 document
-                    .getElementById("taskTitle")
+                    .getElementById(
+                        "taskTitle"
+                    )
                     .value = "";
 
 
@@ -677,11 +655,313 @@ if (addTaskBtn) {
 
         }
     );
+
+
+// =========================
+// EDIT TASK
+// =========================
+
+async function editTask(taskId) {
+
+    if (!checkLogin()) return;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/tasks/${taskId}`,
+                {
+                    method: "GET",
+                    headers:
+                        getAuthHeaders()
+                }
+            );
+
+
+        const task =
+            await handleResponse(
+                response
+            );
+
+
+        if (!task) return;
+
+
+        document
+            .getElementById(
+                "editTaskId"
+            )
+            .value =
+                task.id;
+
+
+        document
+            .getElementById(
+                "editTaskTitle"
+            )
+            .value =
+                task.title || "";
+
+
+        document
+            .getElementById(
+                "editTaskDescription"
+            )
+            .value =
+                task.description || "";
+
+
+        document
+            .getElementById(
+                "editTaskPriority"
+            )
+            .value =
+                task.priority || "medium";
+
+
+        document
+            .getElementById(
+                "editTaskStatus"
+            )
+            .value =
+                task.status || "Pending";
+
+
+        const dueDate =
+            document.getElementById(
+                "editTaskDueDate"
+            );
+
+
+        if (task.due_date) {
+
+            dueDate.value =
+                task.due_date.substring(
+                    0,
+                    10
+                );
+
+        } else {
+
+            dueDate.value = "";
+        }
+
+
+        document
+            .getElementById(
+                "editModal"
+            )
+            .style.display =
+                "flex";
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Task details load nahi ho payi."
+        );
+    }
 }
 
 
 // =========================
-// Complete Task
+// SAVE EDITED TASK
+// =========================
+
+document
+    .getElementById("saveEditBtn")
+    .addEventListener(
+        "click",
+        async () => {
+
+            if (!checkLogin()) return;
+
+
+            const taskId =
+                document
+                    .getElementById(
+                        "editTaskId"
+                    )
+                    .value;
+
+
+            const title =
+                document
+                    .getElementById(
+                        "editTaskTitle"
+                    )
+                    .value
+                    .trim();
+
+
+            const description =
+                document
+                    .getElementById(
+                        "editTaskDescription"
+                    )
+                    .value
+                    .trim();
+
+
+            const priority =
+                document
+                    .getElementById(
+                        "editTaskPriority"
+                    )
+                    .value;
+
+
+            const status =
+                document
+                    .getElementById(
+                        "editTaskStatus"
+                    )
+                    .value;
+
+
+            const dueDate =
+                document
+                    .getElementById(
+                        "editTaskDueDate"
+                    )
+                    .value;
+
+
+            if (title === "") {
+
+                alert(
+                    "Task title cannot be empty."
+                );
+
+                return;
+            }
+
+
+            try {
+
+                // Get original task
+                // to keep project_id
+
+                const getResponse =
+                    await fetch(
+                        `${API}/tasks/${taskId}`,
+                        {
+                            method: "GET",
+
+                            headers:
+                                getAuthHeaders()
+                        }
+                    );
+
+
+                const originalTask =
+                    await handleResponse(
+                        getResponse
+                    );
+
+
+                if (!originalTask) return;
+
+
+                const response =
+                    await fetch(
+                        `${API}/tasks/${taskId}`,
+                        {
+                            method: "PUT",
+
+                            headers:
+                                getJsonHeaders(),
+
+                            body:
+                                JSON.stringify({
+
+                                    title:
+                                        title,
+
+                                    description:
+                                        description,
+
+                                    priority:
+                                        priority,
+
+                                    due_date:
+                                        dueDate ||
+                                        null,
+
+                                    status:
+                                        status,
+
+                                    project_id:
+                                        originalTask.project_id
+
+                                })
+                        }
+                    );
+
+
+                const updatedTask =
+                    await handleResponse(
+                        response
+                    );
+
+
+                if (!updatedTask) return;
+
+
+                alert(
+                    "✅ Task Updated Successfully"
+                );
+
+
+                document
+                    .getElementById(
+                        "editModal"
+                    )
+                    .style.display =
+                        "none";
+
+
+                loadTasks();
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Task update nahi ho paya."
+                );
+            }
+
+        }
+    );
+
+
+// =========================
+// CANCEL EDIT
+// =========================
+
+document
+    .getElementById("cancelEditBtn")
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "editModal"
+                )
+                .style.display =
+                    "none";
+
+        }
+    );
+
+
+// =========================
+// COMPLETE TASK
 // =========================
 
 async function completeTask(taskId) {
@@ -703,7 +983,9 @@ async function completeTask(taskId) {
 
 
         const task =
-            await handleResponse(response);
+            await handleResponse(
+                response
+            );
 
 
         if (!task) return;
@@ -767,7 +1049,7 @@ async function completeTask(taskId) {
 
 
 // =========================
-// Delete Task
+// DELETE TASK
 // =========================
 
 async function deleteTask(taskId) {
@@ -791,6 +1073,7 @@ async function deleteTask(taskId) {
                 `${API}/tasks/${taskId}`,
                 {
                     method: "DELETE",
+
                     headers:
                         getAuthHeaders()
                 }
@@ -798,7 +1081,9 @@ async function deleteTask(taskId) {
 
 
         const result =
-            await handleResponse(response);
+            await handleResponse(
+                response
+            );
 
 
         if (!result) return;
@@ -823,16 +1108,12 @@ async function deleteTask(taskId) {
 
 
 // =========================
-// Statistics
+// STATISTICS
 // =========================
 
-const statsBtn =
-    document.getElementById("statsBtn");
-
-
-if (statsBtn) {
-
-    statsBtn.addEventListener(
+document
+    .getElementById("statsBtn")
+    .addEventListener(
         "click",
         async () => {
 
@@ -884,7 +1165,9 @@ if (statsBtn) {
 
 
                 document
-                    .getElementById("stats")
+                    .getElementById(
+                        "stats"
+                    )
                     .innerHTML = `
 
                         📋 Total Tasks :
@@ -913,20 +1196,15 @@ if (statsBtn) {
 
         }
     );
-}
 
 
 // =========================
-// AI Quick Add
+// AI QUICK ADD
 // =========================
 
-const aiBtn =
-    document.getElementById("aiBtn");
-
-
-if (aiBtn) {
-
-    aiBtn.addEventListener(
+document
+    .getElementById("aiBtn")
+    .addEventListener(
         "click",
         async () => {
 
@@ -935,7 +1213,9 @@ if (aiBtn) {
 
             const text =
                 document
-                    .getElementById("aiText")
+                    .getElementById(
+                        "aiText"
+                    )
                     .value
                     .trim();
 
@@ -986,7 +1266,9 @@ if (aiBtn) {
                                         text,
 
                                     project_id:
-                                        Number(projectId)
+                                        Number(
+                                            projectId
+                                        )
 
                                 })
                         }
@@ -1009,7 +1291,9 @@ if (aiBtn) {
 
 
                 document
-                    .getElementById("aiText")
+                    .getElementById(
+                        "aiText"
+                    )
                     .value = "";
 
 
@@ -1026,20 +1310,15 @@ if (aiBtn) {
 
         }
     );
-}
 
 
 // =========================
-// Search Task
+// SEARCH TASK
 // =========================
 
-const searchBtn =
-    document.getElementById("searchBtn");
-
-
-if (searchBtn) {
-
-    searchBtn.addEventListener(
+document
+    .getElementById("searchBtn")
+    .addEventListener(
         "click",
         async () => {
 
@@ -1048,7 +1327,9 @@ if (searchBtn) {
 
             const text =
                 document
-                    .getElementById("searchText")
+                    .getElementById(
+                        "searchText"
+                    )
                     .value
                     .trim();
 
@@ -1099,7 +1380,9 @@ if (searchBtn) {
                 tasks.forEach(task => {
 
                     const li =
-                        document.createElement("li");
+                        document.createElement(
+                            "li"
+                        );
 
 
                     li.innerHTML = `
@@ -1111,9 +1394,19 @@ if (searchBtn) {
                         <span class="task-status">
 
                             Status :
-                            ${task.status || "Pending"}
+                            ${task.status ||
+                                "Pending"}
 
                         </span>
+
+
+                        <button
+                            class="edit-btn"
+                            onclick="editTask(${task.id})"
+                        >
+                            ✏️ Edit
+                        </button>
+
 
                         <button
                             class="complete-btn"
@@ -1121,6 +1414,7 @@ if (searchBtn) {
                         >
                             ✅ Complete
                         </button>
+
 
                         <button
                             class="delete-btn"
@@ -1132,7 +1426,9 @@ if (searchBtn) {
                     `;
 
 
-                    taskList.appendChild(li);
+                    taskList.appendChild(
+                        li
+                    );
 
                 });
 
@@ -1140,25 +1436,22 @@ if (searchBtn) {
 
                 console.error(error);
 
-                alert("Search failed.");
+                alert(
+                    "Search failed."
+                );
             }
 
         }
     );
-}
 
 
 // =========================
-// Show All
+// SHOW ALL
 // =========================
 
-const showAllBtn =
-    document.getElementById("showAllBtn");
-
-
-if (showAllBtn) {
-
-    showAllBtn.addEventListener(
+document
+    .getElementById("showAllBtn")
+    .addEventListener(
         "click",
         () => {
 
@@ -1166,35 +1459,31 @@ if (showAllBtn) {
 
         }
     );
-}
 
 
 // =========================
-// Logout
+// LOGOUT
 // =========================
 
-const logoutBtn =
-    document.getElementById("logoutBtn");
-
-
-if (logoutBtn) {
-
-    logoutBtn.addEventListener(
+document
+    .getElementById("logoutBtn")
+    .addEventListener(
         "click",
         () => {
 
-            localStorage.removeItem("token");
+            localStorage.removeItem(
+                "token"
+            );
 
             window.location.href =
                 "login.html";
 
         }
     );
-}
 
 
 // =========================
-// Initial Load
+// INITIAL LOAD
 // =========================
 
 window.addEventListener(

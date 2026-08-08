@@ -20,9 +20,7 @@
 
 <div class="container">
 
-    <!-- =========================
-         TOP BAR
-    ========================== -->
+    <!-- TOP BAR -->
 
     <div class="top-bar">
 
@@ -38,9 +36,7 @@
     </div>
 
 
-    <!-- =========================
-         PROJECT MANAGEMENT
-    ========================== -->
+    <!-- PROJECT MANAGEMENT -->
 
     <div class="card">
 
@@ -73,9 +69,7 @@
     </div>
 
 
-    <!-- =========================
-         ADD TASK
-    ========================== -->
+    <!-- ADD TASK -->
 
     <div class="card">
 
@@ -121,9 +115,7 @@
     </div>
 
 
-    <!-- =========================
-         AI QUICK ADD
-    ========================== -->
+    <!-- AI QUICK ADD -->
 
     <div class="card">
 
@@ -150,9 +142,7 @@
     </div>
 
 
-    <!-- =========================
-         SEARCH
-    ========================== -->
+    <!-- SEARCH -->
 
     <div class="card">
 
@@ -175,9 +165,7 @@
     </div>
 
 
-    <!-- =========================
-         STATISTICS
-    ========================== -->
+    <!-- STATISTICS -->
 
     <div class="card">
 
@@ -192,15 +180,118 @@
     </div>
 
 
-    <!-- =========================
-         TASK LIST
-    ========================== -->
+    <!-- TASK LIST -->
 
     <div class="card">
 
         <h2>📋 Task List</h2>
 
         <ul id="taskList"></ul>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     EDIT TASK MODAL
+========================= -->
+
+<div
+    id="editModal"
+    class="edit-modal"
+    style="display: none;"
+>
+
+    <div class="edit-modal-content">
+
+        <h2>✏️ Edit Task</h2>
+
+        <input
+            type="hidden"
+            id="editTaskId"
+        >
+
+        <label>
+            Task Title
+        </label>
+
+        <input
+            type="text"
+            id="editTaskTitle"
+            placeholder="Task title"
+        >
+
+
+        <label>
+            Description
+        </label>
+
+        <textarea
+            id="editTaskDescription"
+            placeholder="Task description"
+        ></textarea>
+
+
+        <label>
+            Priority
+        </label>
+
+        <select id="editTaskPriority">
+
+            <option value="low">
+                Low
+            </option>
+
+            <option value="medium">
+                Medium
+            </option>
+
+            <option value="high">
+                High
+            </option>
+
+        </select>
+
+
+        <label>
+            Status
+        </label>
+
+        <select id="editTaskStatus">
+
+            <option value="Pending">
+                Pending
+            </option>
+
+            <option value="Completed">
+                Completed
+            </option>
+
+        </select>
+
+
+        <label>
+            Due Date
+        </label>
+
+        <input
+            type="date"
+            id="editTaskDueDate"
+        >
+
+
+        <div class="edit-buttons">
+
+            <button id="saveEditBtn">
+                💾 Save Changes
+            </button>
+
+            <button id="cancelEditBtn">
+                ❌ Cancel
+            </button>
+
+        </div>
 
     </div>
 

@@ -328,3 +328,48 @@ li b {
 .account-link a:hover {
     text-decoration: underline;
 }
+.edit-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.edit-modal-content {
+    width: 90%;
+    max-width: 500px;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+}
+
+.edit-modal-content input,
+.edit-modal-content textarea,
+.edit-modal-content select {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 8px 0 15px;
+    padding: 10px;
+}
+
+.edit-modal-content textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.edit-buttons button {
+    flex: 1;
+}
+
+.edit-btn {
+    margin-left: 10px;
+}
