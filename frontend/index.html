@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,15 +13,18 @@
 
     <title>TaskFlow AI Dashboard</title>
 
-    <link rel="stylesheet" href="./style.css">
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
 
 </head>
 
 <body>
 
-<div class="container">
-
-    <!-- TOP BAR -->
+    <!-- =========================
+         TOP BAR
+    ========================== -->
 
     <div class="top-bar">
 
@@ -36,11 +40,17 @@
     </div>
 
 
-    <!-- PROJECT SELECT -->
+    <!-- =========================
+         PROJECT MANAGEMENT
+    ========================== -->
 
     <div class="card">
 
-        <h2>📁 Select Project</h2>
+        <h2>📁 My Project</h2>
+
+        <label for="projectSelect">
+            Select Project
+        </label>
 
         <select id="projectSelect">
 
@@ -50,12 +60,34 @@
 
         </select>
 
+
+        <input
+            type="text"
+            id="projectName"
+            placeholder="Enter project name"
+        >
+
+
+        <input
+            type="text"
+            id="projectDescription"
+            placeholder="Project description"
+        >
+
+
+        <button id="createProjectBtn">
+            ➕ Create Project
+        </button>
+
+
         <p id="projectInfo"></p>
 
     </div>
 
 
-    <!-- ADD TASK -->
+    <!-- =========================
+         ADD TASK
+    ========================== -->
 
     <div class="card">
 
@@ -67,13 +99,17 @@
             placeholder="Enter Task Title"
         >
 
+
         <select id="taskPriority">
 
             <option value="low">
                 Low Priority
             </option>
 
-            <option value="medium" selected>
+            <option
+                value="medium"
+                selected
+            >
                 Medium Priority
             </option>
 
@@ -83,6 +119,7 @@
 
         </select>
 
+
         <button id="addTaskBtn">
             Add Task
         </button>
@@ -90,7 +127,9 @@
     </div>
 
 
-    <!-- AI QUICK ADD -->
+    <!-- =========================
+         AI QUICK ADD
+    ========================== -->
 
     <div class="card">
 
@@ -109,7 +148,9 @@
     </div>
 
 
-    <!-- SEARCH -->
+    <!-- =========================
+         SEARCH
+    ========================== -->
 
     <div class="card">
 
@@ -132,7 +173,9 @@
     </div>
 
 
-    <!-- STATISTICS -->
+    <!-- =========================
+         STATISTICS
+    ========================== -->
 
     <div class="card">
 
@@ -147,7 +190,9 @@
     </div>
 
 
-    <!-- TASK LIST -->
+    <!-- =========================
+         TASK LIST
+    ========================== -->
 
     <div class="card">
 
@@ -157,11 +202,14 @@
 
     </div>
 
-</div>
 
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
 
-<script src="./script.js"></script>
+    <script src="./script.js"></script>
 
 </body>
 
 </html>
+```

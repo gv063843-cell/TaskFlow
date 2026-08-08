@@ -1,23 +1,18 @@
 const API = "https://taskflow-api-ax00.onrender.com";
 
-
 // =========================
 // Current Selected Project
 // =========================
 
 let currentProjectId = null;
 
-
 // =========================
 // Get Login Token
 // =========================
 
 function getToken() {
-
     return localStorage.getItem("token");
-
 }
-
 
 // =========================
 // Authorization Headers
@@ -30,9 +25,7 @@ function getAuthHeaders() {
     return {
         "Authorization": `Bearer ${token}`
     };
-
 }
-
 
 function getJsonHeaders() {
 
@@ -42,9 +35,7 @@ function getJsonHeaders() {
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"
     };
-
 }
-
 
 // =========================
 // Check Login
@@ -59,13 +50,10 @@ function checkLogin() {
         window.location.href = "login.html";
 
         return false;
-
     }
 
     return true;
-
 }
-
 
 // =========================
 // Handle API Response
@@ -82,9 +70,7 @@ async function handleResponse(response) {
         window.location.href = "login.html";
 
         return null;
-
     }
-
 
     if (!response.ok) {
 
@@ -95,14 +81,10 @@ async function handleResponse(response) {
         alert("API Error: " + response.status);
 
         return null;
-
     }
 
-
     return await response.json();
-
 }
-
 
 // =========================
 // Elements
@@ -117,7 +99,6 @@ const projectSelect =
 const projectInfo =
     document.getElementById("projectInfo");
 
-
 // =========================
 // Load Projects
 // =========================
@@ -125,7 +106,6 @@ const projectInfo =
 async function loadProjects() {
 
     if (!checkLogin()) return;
-
 
     try {
 
@@ -137,16 +117,12 @@ async function loadProjects() {
             }
         );
 
-
         const projects =
             await handleResponse(response);
 
-
         if (!projects) return;
 
-
         projectSelect.innerHTML = "";
-
 
         if (projects.length === 0) {
 
@@ -166,9 +142,7 @@ async function loadProjects() {
             `;
 
             return;
-
         }
-
 
         // Add projects to dropdown
 
@@ -186,36 +160,135 @@ async function loadProjects() {
 
         });
 
-
         // Select first project automatically
 
         currentProjectId =
             projects[0].id;
 
-
         projectSelect.value =
             currentProjectId;
-
 
         projectInfo.innerText =
             `Current Project: ${projects[0].name}`;
 
-
-        // Load tasks of first project
+        // Load tasks
 
         loadTasks();
-
 
     } catch (error) {
 
         console.error(error);
 
         alert("Projects load nahi ho paaye.");
-
     }
-
 }
 
+// =========================
+// Create Project
+// =========================
+
+const createProjectBtn =
+    document.getElementById("createProjectBtn");
+
+if (createProjectBtn) {
+
+    createProjectBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (!checkLogin()) return;
+
+            const name =
+                document
+                    .getElementById("projectName")
+                    .value
+                    .trim();
+
+            const description =
+                document
+                    .getElementById("projectDescription")
+                    .value
+                    .trim();
+
+            if (name === "") {
+
+                alert("Enter Project Name");
+
+                return;
+            }
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/projects/`,
+                        {
+                            method: "POST",
+
+                            headers:
+                                getJsonHeaders(),
+
+                            body:
+                                JSON.stringify({
+                                    name: name,
+                                    description:
+                                        description
+                                })
+                        }
+                    );
+
+                const project =
+                    await handleResponse(response);
+
+                if (!project) return;
+
+                alert(
+                    "Project Created Successfully"
+                );
+
+                document
+                    .getElementById("projectName")
+                    .value = "";
+
+                document
+                    .getElementById("projectDescription")
+                    .value = "";
+
+                // Reload projects
+
+                await loadProjects();
+
+                // Select newly created project
+
+                if (project.id) {
+
+                    currentProjectId =
+                        Number(project.id);
+
+                    projectSelect.value =
+                        String(project.id);
+
+                    projectInfo.innerText =
+                        `Current Project: ${project.name}`;
+
+                    await loadTasks();
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Create Project Error:",
+                    error
+                );
+
+                alert(
+                    "Project create nahi ho paya."
+                );
+            }
+
+        }
+    );
+}
 
 // =========================
 // Project Change
@@ -228,24 +301,17 @@ projectSelect.addEventListener(
         currentProjectId =
             parseInt(this.value);
 
-
         const selectedText =
             this.options[
                 this.selectedIndex
             ].text;
 
-
         projectInfo.innerText =
             `Current Project: ${selectedText}`;
 
-
-        // Load only selected project tasks
-
         loadTasks();
-
     }
 );
-
 
 // =========================
 // Load Tasks
@@ -255,7 +321,6 @@ async function loadTasks() {
 
     if (!checkLogin()) return;
 
-
     if (!currentProjectId) {
 
         taskList.innerHTML = `
@@ -263,9 +328,7 @@ async function loadTasks() {
         `;
 
         return;
-
     }
-
 
     try {
 
@@ -277,15 +340,11 @@ async function loadTasks() {
             }
         );
 
-
         const allTasks =
             await handleResponse(response);
 
-
         if (!allTasks) return;
 
-
-        // IMPORTANT:
         // Only selected project's tasks
 
         const tasks =
@@ -295,9 +354,7 @@ async function loadTasks() {
                     === Number(currentProjectId)
             );
 
-
         taskList.innerHTML = "";
-
 
         if (tasks.length === 0) {
 
@@ -308,15 +365,12 @@ async function loadTasks() {
             `;
 
             return;
-
         }
-
 
         tasks.forEach(task => {
 
             const li =
                 document.createElement("li");
-
 
             li.innerHTML = `
 
@@ -332,12 +386,18 @@ async function loadTasks() {
                 </span>
 
                 <button
+                    class="edit-btn"
+                    onclick="editTask(${task.id})"
+                >
+                    ✏️ Edit
+                </button>
+
+                <button
                     class="complete-btn"
                     onclick="completeTask(${task.id})"
                 >
                     ✅ Complete
                 </button>
-
 
                 <button
                     class="delete-btn"
@@ -348,11 +408,9 @@ async function loadTasks() {
 
             `;
 
-
             taskList.appendChild(li);
 
         });
-
 
     } catch (error) {
 
@@ -361,11 +419,8 @@ async function loadTasks() {
         alert(
             "Server se connection nahi ho raha."
         );
-
     }
-
 }
-
 
 // =========================
 // Add New Task
@@ -377,109 +432,228 @@ document
         "click",
         async () => {
 
+            if (!checkLogin()) return;
 
-        if (!checkLogin()) return;
+            if (!currentProjectId) {
 
-
-        if (!currentProjectId) {
-
-            alert(
-                "Please select a project first."
-            );
-
-            return;
-
-        }
-
-
-        const title =
-            document
-                .getElementById("taskTitle")
-                .value
-                .trim();
-
-
-        const priority =
-            document
-                .getElementById("taskPriority")
-                .value;
-
-
-        if (title === "") {
-
-            alert("Enter Task Title");
-
-            return;
-
-        }
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `${API}/tasks/`,
-                    {
-
-                        method: "POST",
-
-                        headers:
-                            getJsonHeaders(),
-
-                        body:
-                            JSON.stringify({
-
-                                title: title,
-
-                                description: "",
-
-                                priority: priority,
-
-                                due_date: null,
-
-                                status: "Pending",
-
-                                project_id:
-                                    currentProjectId
-
-                            })
-
-                    }
+                alert(
+                    "Please select a project first."
                 );
 
+                return;
+            }
 
-            const task =
-                await handleResponse(response);
+            const title =
+                document
+                    .getElementById("taskTitle")
+                    .value
+                    .trim();
 
+            const priority =
+                document
+                    .getElementById("taskPriority")
+                    .value;
 
-            if (!task) return;
+            if (title === "") {
 
+                alert("Enter Task Title");
 
-            document
-                .getElementById("taskTitle")
-                .value = "";
+                return;
+            }
 
+            try {
 
-            alert(
-                "✅ Task Added Successfully"
-            );
+                const response =
+                    await fetch(
+                        `${API}/tasks/`,
+                        {
+                            method: "POST",
 
+                            headers:
+                                getJsonHeaders(),
 
-            loadTasks();
+                            body:
+                                JSON.stringify({
 
+                                    title: title,
 
-        } catch (error) {
+                                    description: "",
 
-            console.error(error);
+                                    priority: priority,
 
-            alert(
-                "Task add nahi ho paya."
-            );
+                                    due_date: null,
+
+                                    status: "Pending",
+
+                                    project_id:
+                                        currentProjectId
+
+                                })
+                        }
+                    );
+
+                const task =
+                    await handleResponse(response);
+
+                if (!task) return;
+
+                document
+                    .getElementById("taskTitle")
+                    .value = "";
+
+                alert(
+                    "✅ Task Added Successfully"
+                );
+
+                loadTasks();
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Task add nahi ho paya."
+                );
+            }
 
         }
+    );
 
-    });
+// =========================
+// EDIT TASK
+// =========================
 
+async function editTask(taskId) {
+
+    if (!checkLogin()) return;
+
+    try {
+
+        // Get current task
+
+        const response =
+            await fetch(
+                `${API}/tasks/${taskId}`,
+                {
+                    method: "GET",
+                    headers: getAuthHeaders()
+                }
+            );
+
+        const task =
+            await handleResponse(response);
+
+        if (!task) return;
+
+        // New title
+
+        const newTitle =
+            prompt(
+                "Edit Task Title:",
+                task.title || ""
+            );
+
+        if (newTitle === null) {
+            return;
+        }
+
+        if (newTitle.trim() === "") {
+
+            alert(
+                "Task title cannot be empty."
+            );
+
+            return;
+        }
+
+        // New priority
+
+        const newPriority =
+            prompt(
+                "Edit Priority (low / medium / high):",
+                task.priority || "medium"
+            );
+
+        if (newPriority === null) {
+            return;
+        }
+
+        const priority =
+            newPriority.trim().toLowerCase();
+
+        if (
+            priority !== "low" &&
+            priority !== "medium" &&
+            priority !== "high"
+        ) {
+
+            alert(
+                "Priority must be low, medium or high."
+            );
+
+            return;
+        }
+
+        // Update task
+
+        const updateResponse =
+            await fetch(
+                `${API}/tasks/${taskId}`,
+                {
+                    method: "PUT",
+
+                    headers:
+                        getJsonHeaders(),
+
+                    body:
+                        JSON.stringify({
+
+                            title:
+                                newTitle.trim(),
+
+                            description:
+                                task.description || "",
+
+                            priority:
+                                priority,
+
+                            due_date:
+                                task.due_date || null,
+
+                            status:
+                                task.status || "Pending",
+
+                            project_id:
+                                task.project_id
+
+                        })
+                }
+            );
+
+        const updatedTask =
+            await handleResponse(
+                updateResponse
+            );
+
+        if (!updatedTask) return;
+
+        alert(
+            "✏️ Task Updated Successfully"
+        );
+
+        // Refresh task list
+
+        loadTasks();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Task modify nahi ho paya."
+        );
+    }
+}
 
 // =========================
 // Complete Task
@@ -489,35 +663,27 @@ async function completeTask(taskId) {
 
     if (!checkLogin()) return;
 
-
     try {
 
         const response =
             await fetch(
                 `${API}/tasks/${taskId}`,
                 {
-
                     method: "GET",
-
                     headers:
                         getAuthHeaders()
-
                 }
             );
-
 
         const task =
             await handleResponse(response);
 
-
         if (!task) return;
-
 
         const updateResponse =
             await fetch(
                 `${API}/tasks/${taskId}`,
                 {
-
                     method: "PUT",
 
                     headers:
@@ -545,22 +711,17 @@ async function completeTask(taskId) {
                                 task.project_id
 
                         })
-
                 }
             );
-
 
         const updatedTask =
             await handleResponse(
                 updateResponse
             );
 
-
         if (!updatedTask) return;
 
-
         loadTasks();
-
 
     } catch (error) {
 
@@ -569,11 +730,8 @@ async function completeTask(taskId) {
         alert(
             "Task update nahi ho paya."
         );
-
     }
-
 }
-
 
 // =========================
 // Delete Task
@@ -583,13 +741,11 @@ async function deleteTask(taskId) {
 
     if (!checkLogin()) return;
 
-
     if (
         !confirm(
             "Delete this task?"
         )
     ) return;
-
 
     try {
 
@@ -597,32 +753,25 @@ async function deleteTask(taskId) {
             await fetch(
                 `${API}/tasks/${taskId}`,
                 {
-
                     method: "DELETE",
 
                     headers:
                         getAuthHeaders()
-
                 }
             );
-
 
         const result =
             await handleResponse(
                 response
             );
 
-
         if (!result) return;
-
 
         alert(
             "🗑 Task Deleted Successfully"
         );
 
-
         loadTasks();
-
 
     } catch (error) {
 
@@ -631,11 +780,8 @@ async function deleteTask(taskId) {
         alert(
             "Task delete nahi ho paya."
         );
-
     }
-
 }
-
 
 // =========================
 // Statistics
@@ -647,101 +793,87 @@ document
         "click",
         async () => {
 
+            if (!checkLogin()) return;
 
-        if (!checkLogin()) return;
+            try {
 
+                const response =
+                    await fetch(
+                        `${API}/projects/stats/summary`,
+                        {
+                            method: "GET",
 
-        try {
+                            headers:
+                                getAuthHeaders()
+                        }
+                    );
 
-            const response =
-                await fetch(
-                    `${API}/projects/stats/summary`,
-                    {
+                const data =
+                    await handleResponse(
+                        response
+                    );
 
-                        method: "GET",
+                if (!data) return;
 
-                        headers:
-                            getAuthHeaders()
+                const projectStats =
+                    data.find(
+                        project =>
+                            Number(
+                                project.project_id
+                            )
+                            ===
+                            Number(
+                                currentProjectId
+                            )
+                    );
 
-                    }
-                );
+                if (!projectStats) {
 
+                    document
+                        .getElementById("stats")
+                        .innerHTML = `
+                            No statistics available.
+                        `;
 
-            const data =
-                await handleResponse(
-                    response
-                );
-
-
-            if (!data) return;
-
-
-            // Only selected project
-
-            const projectStats =
-                data.find(
-                    project =>
-                        Number(
-                            project.project_id
-                        )
-                        ===
-                        Number(
-                            currentProjectId
-                        )
-                );
-
-
-            if (!projectStats) {
+                    return;
+                }
 
                 document
                     .getElementById("stats")
                     .innerHTML = `
-                        No statistics available.
+
+                        📋 Total Tasks :
+                        <b>
+                            ${projectStats.total_tasks}
+                        </b>
+
+                        <br><br>
+
+                        ✅ Completed :
+                        <b>
+                            ${projectStats.completed_tasks}
+                        </b>
+
+                        <br><br>
+
+                        ⏳ Pending :
+                        <b>
+                            ${projectStats.pending_tasks}
+                        </b>
+
                     `;
 
-                return;
+            } catch (error) {
 
+                console.error(error);
+
+                alert(
+                    "Statistics load nahi ho payi."
+                );
             }
 
-
-            document
-                .getElementById("stats")
-                .innerHTML = `
-
-                    📋 Total Tasks :
-                    <b>
-                        ${projectStats.total_tasks}
-                    </b>
-
-                    <br><br>
-
-                    ✅ Completed :
-                    <b>
-                        ${projectStats.completed_tasks}
-                    </b>
-
-                    <br><br>
-
-                    ⏳ Pending :
-                    <b>
-                        ${projectStats.pending_tasks}
-                    </b>
-
-                `;
-
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert(
-                "Statistics load nahi ho payi."
-            );
-
         }
-
-    });
-
+    );
 
 // =========================
 // AI Quick Add
@@ -753,101 +885,85 @@ document
         "click",
         async () => {
 
+            if (!checkLogin()) return;
 
-        if (!checkLogin()) return;
+            if (!currentProjectId) {
 
-
-        if (!currentProjectId) {
-
-            alert(
-                "Please select a project first."
-            );
-
-            return;
-
-        }
-
-
-        const text =
-            document
-                .getElementById("aiText")
-                .value
-                .trim();
-
-
-        if (text === "") {
-
-            alert(
-                "Describe your task"
-            );
-
-            return;
-
-        }
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `${API}/tasks/quick-add`,
-                    {
-
-                        method: "POST",
-
-                        headers:
-                            getJsonHeaders(),
-
-                        body:
-                            JSON.stringify({
-
-                                description:
-                                    text,
-
-                                project_id:
-                                    currentProjectId
-
-                            })
-
-                    }
+                alert(
+                    "Please select a project first."
                 );
 
+                return;
+            }
 
-            const data =
-                await handleResponse(
-                    response
+            const text =
+                document
+                    .getElementById("aiText")
+                    .value
+                    .trim();
+
+            if (text === "") {
+
+                alert(
+                    "Describe your task"
                 );
 
+                return;
+            }
 
-            if (!data) return;
+            try {
 
+                const response =
+                    await fetch(
+                        `${API}/tasks/quick-add`,
+                        {
+                            method: "POST",
 
-            alert(
-                "🤖 AI Task Created: "
-                + data.title
-            );
+                            headers:
+                                getJsonHeaders(),
 
+                            body:
+                                JSON.stringify({
 
-            document
-                .getElementById("aiText")
-                .value = "";
+                                    description:
+                                        text,
 
+                                    project_id:
+                                        currentProjectId
 
-            loadTasks();
+                                })
+                        }
+                    );
 
+                const data =
+                    await handleResponse(
+                        response
+                    );
 
-        } catch (error) {
+                if (!data) return;
 
-            console.error(error);
+                alert(
+                    "🤖 AI Task Created: "
+                    + data.title
+                );
 
-            alert(
-                "AI Quick Add failed."
-            );
+                document
+                    .getElementById("aiText")
+                    .value = "";
+
+                loadTasks();
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "AI Quick Add failed."
+                );
+            }
 
         }
-
-    });
-
+    );
 
 // =========================
 // Search Task
@@ -859,148 +975,131 @@ document
         "click",
         async () => {
 
+            if (!checkLogin()) return;
 
-        if (!checkLogin()) return;
+            if (!currentProjectId) {
 
-
-        if (!currentProjectId) {
-
-            alert(
-                "Please select a project first."
-            );
-
-            return;
-
-        }
-
-
-        const text =
-            document
-                .getElementById("searchText")
-                .value
-                .trim();
-
-
-        if (text === "") {
-
-            loadTasks();
-
-            return;
-
-        }
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `${API}/tasks/search/?title=${encodeURIComponent(text)}`,
-                    {
-
-                        method: "GET",
-
-                        headers:
-                            getAuthHeaders()
-
-                    }
+                alert(
+                    "Please select a project first."
                 );
-
-
-            const allTasks =
-                await handleResponse(
-                    response
-                );
-
-
-            if (!allTasks) return;
-
-
-            // Only selected project's tasks
-
-            const tasks =
-                allTasks.filter(
-                    task =>
-                        Number(
-                            task.project_id
-                        )
-                        ===
-                        Number(
-                            currentProjectId
-                        )
-                );
-
-
-            taskList.innerHTML = "";
-
-
-            if (tasks.length === 0) {
-
-                taskList.innerHTML = `
-                    <li>
-                        No Task Found
-                    </li>
-                `;
 
                 return;
-
             }
 
+            const text =
+                document
+                    .getElementById("searchText")
+                    .value
+                    .trim();
 
-            tasks.forEach(task => {
+            if (text === "") {
 
-                const li =
-                    document.createElement("li");
+                loadTasks();
 
+                return;
+            }
 
-                li.innerHTML = `
+            try {
 
-                    <b>
-                        ${task.title}
-                    </b>
+                const response =
+                    await fetch(
+                        `${API}/tasks/search/?title=${encodeURIComponent(text)}`,
+                        {
+                            method: "GET",
 
-                    <span class="task-status">
+                            headers:
+                                getAuthHeaders()
+                        }
+                    );
 
-                        Status :
-                        ${task.status || "Pending"}
+                const allTasks =
+                    await handleResponse(
+                        response
+                    );
 
-                    </span>
+                if (!allTasks) return;
 
+                const tasks =
+                    allTasks.filter(
+                        task =>
+                            Number(
+                                task.project_id
+                            )
+                            ===
+                            Number(
+                                currentProjectId
+                            )
+                    );
 
-                    <button
-                        class="complete-btn"
-                        onclick="completeTask(${task.id})"
-                    >
-                        ✅ Complete
-                    </button>
+                taskList.innerHTML = "";
 
+                if (tasks.length === 0) {
 
-                    <button
-                        class="delete-btn"
-                        onclick="deleteTask(${task.id})"
-                    >
-                        🗑 Delete
-                    </button>
+                    taskList.innerHTML = `
+                        <li>
+                            No Task Found
+                        </li>
+                    `;
 
-                `;
+                    return;
+                }
 
+                tasks.forEach(task => {
 
-                taskList.appendChild(li);
+                    const li =
+                        document.createElement("li");
 
-            });
+                    li.innerHTML = `
 
+                        <b>
+                            ${task.title}
+                        </b>
 
-        } catch (error) {
+                        <span class="task-status">
 
-            console.error(error);
+                            Status :
+                            ${task.status || "Pending"}
 
-            alert(
-                "Search failed."
-            );
+                        </span>
+
+                        <button
+                            class="edit-btn"
+                            onclick="editTask(${task.id})"
+                        >
+                            ✏️ Edit
+                        </button>
+
+                        <button
+                            class="complete-btn"
+                            onclick="completeTask(${task.id})"
+                        >
+                            ✅ Complete
+                        </button>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteTask(${task.id})"
+                        >
+                            🗑 Delete
+                        </button>
+
+                    `;
+
+                    taskList.appendChild(li);
+
+                });
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Search failed."
+                );
+            }
 
         }
-
-    });
-
+    );
 
 // =========================
 // Show All Button
@@ -1010,7 +1109,6 @@ const showAllBtn =
     document.getElementById(
         "showAllBtn"
     );
-
 
 if (showAllBtn) {
 
@@ -1022,9 +1120,7 @@ if (showAllBtn) {
 
         }
     );
-
 }
-
 
 // =========================
 // Initial Load
@@ -1039,7 +1135,6 @@ window.addEventListener(
     }
 );
 
-
 // =========================
 // Logout
 // =========================
@@ -1048,7 +1143,6 @@ const logoutBtn =
     document.getElementById(
         "logoutBtn"
     );
-
 
 if (logoutBtn) {
 
@@ -1065,5 +1159,4 @@ if (logoutBtn) {
 
         }
     );
-
-}   
+}
