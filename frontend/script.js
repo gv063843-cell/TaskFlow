@@ -1,6 +1,11 @@
 const API = "https://taskflow-api-ax00.onrender.com";
 
 // =========================
+// Current Project ID
+// =========================
+const PROJECT_ID = 2;
+
+// =========================
 // Get Login Token
 // =========================
 function getToken() {
@@ -180,7 +185,7 @@ document
                         priority: "medium",
                         due_date: null,
                         status: "Pending",
-                        project_id: 1
+                        project_id: PROJECT_ID
                     })
                 }
             );
@@ -393,7 +398,7 @@ document
 
                     body: JSON.stringify({
                         description: text,
-                        project_id: 1
+                        project_id: PROJECT_ID
                     })
                 }
             );
