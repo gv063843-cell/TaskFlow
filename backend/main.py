@@ -12,8 +12,11 @@ from models.user import User
 from models.project import Project
 from models.task import Task
 
+
 # Create Database Tables
+
 Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="TaskFlow API",
@@ -21,31 +24,37 @@ app = FastAPI(
     description="AI Powered Task Management System"
 )
 
+
 # CORS Configuration
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://wonderful-licorice-7b4921.netlify.app"
-    ],
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 # Include Routers
+
 app.include_router(user_router)
 app.include_router(project_router)
 app.include_router(task_router)
-app.include_router(auth_router)   # Ye line missing thi
+app.include_router(auth_router)
+
 
 # Home Route
+
 @app.get("/")
 def home():
     return {
         "message": "🚀 Welcome to TaskFlow API"
     }
 
+
 # Health Check
+
 @app.get("/health")
 def health():
     return {
