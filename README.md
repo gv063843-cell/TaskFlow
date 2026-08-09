@@ -23,7 +23,9 @@ The application allows users to create projects and tasks, manage tasks through 
 - Responsive frontend dashboard
 - FastAPI request timing middleware
 - CORS configuration
-- SQLite database using SQLAlchemy ORM
+- SQLite for local development
+- PostgreSQL for production deployment
+- SQLAlchemy ORM
 
 ---
 
@@ -36,6 +38,7 @@ The application allows users to create projects and tasks, manage tasks through 
 - SQLAlchemy
 - Pydantic
 - SQLite
+- PostgreSQL
 - Uvicorn
 
 ## Frontend
