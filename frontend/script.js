@@ -78,6 +78,8 @@ async function handleResponse(response) {
 
         console.error("API Error:", errorText);
 
+        alert("API Error: " + response.status);
+
         return null;
     }
 
@@ -142,6 +144,8 @@ async function loadProjects() {
             return;
         }
 
+        // Add projects to dropdown
+
         projects.forEach(project => {
 
             const option =
@@ -156,6 +160,8 @@ async function loadProjects() {
 
         });
 
+        // Select first project automatically
+
         currentProjectId =
             projects[0].id;
 
@@ -164,6 +170,8 @@ async function loadProjects() {
 
         projectInfo.innerText =
             `Current Project: ${projects[0].name}`;
+
+        // Load tasks
 
         await loadTasks();
 
@@ -248,6 +256,8 @@ if (createProjectBtn) {
 
                 await loadProjects();
 
+                // Select newly created project
+
                 if (project.id) {
 
                     currentProjectId =
@@ -273,6 +283,7 @@ if (createProjectBtn) {
                     "Project create nahi ho paya."
                 );
             }
+
         }
     );
 }
@@ -281,92 +292,49 @@ if (createProjectBtn) {
 // Project Change
 // =========================
 
-projectSelect.addEventListener(
-    "change",
-    function () {
+if (projectSelect) {
 
-        currentProjectId =
-            parseInt(this.value);
+    projectSelect.addEventListener(
+        "change",
+        function () {
 
-        const selectedText =
-            this.options[
-                this.selectedIndex
-            ].text;
+            currentProjectId =
+                parseInt(this.value);
 
-        projectInfo.innerText =
-            `Current Project: ${selectedText}`;
+            const selectedText =
+                this.options[
+                    this.selectedIndex
+                ].text;
 
-        loadTasks();
+            projectInfo.innerText =
+                `Current Project: ${selectedText}`;
+
+            loadTasks();
+        }
+    );
+}
+
+// =========================
+// Format Due Date
+// =========================
+
+function formatDueDate(date) {
+
+    if (!date) {
+        return "No due date";
     }
-);
 
-// =========================
-// Create Task HTML
-// =========================
+    // If backend sends YYYY-MM-DD
 
-function createTaskElement(task) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
 
-    const li =
-        document.createElement("li");
+        const parts =
+            date.split("-");
 
-    const priority =
-        (task.priority || "medium").toLowerCase();
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
 
-    const status =
-        task.status || "Pending";
-
-    li.innerHTML = `
-
-        <div class="task-main">
-
-            <b>
-                ${task.title || "No Title"}
-            </b>
-
-            <span class="task-priority">
-                Priority:
-                <strong>
-                    ${priority}
-                </strong>
-            </span>
-
-            <span class="task-status">
-                Status:
-                <strong>
-                    ${status}
-                </strong>
-            </span>
-
-        </div>
-
-        <div class="task-actions">
-
-            <button
-                class="edit-btn"
-                onclick="editTask(${task.id})"
-            >
-                ✏️ Edit
-            </button>
-
-            <button
-                class="complete-btn"
-                onclick="completeTask(${task.id})"
-            >
-                ✅ Complete
-            </button>
-
-            <button
-                class="delete-btn"
-                onclick="deleteTask(${task.id})"
-            >
-                🗑 Delete
-            </button>
-
-        </div>
-
-    `;
-
-    return li;
+    return date;
 }
 
 // =========================
@@ -401,12 +369,15 @@ async function loadTasks() {
 
         if (!allTasks) return;
 
+        // Only selected project's tasks
+
         const tasks =
             Array.isArray(allTasks)
                 ? allTasks.filter(
                     task =>
                         Number(task.project_id)
-                        === Number(currentProjectId)
+                        ===
+                        Number(currentProjectId)
                 )
                 : [];
 
@@ -425,9 +396,66 @@ async function loadTasks() {
 
         tasks.forEach(task => {
 
-            taskList.appendChild(
-                createTaskElement(task)
-            );
+            const li =
+                document.createElement("li");
+
+            li.innerHTML = `
+
+                <b>
+                    ${task.title || "No Title"}
+                </b>
+
+                <span class="task-priority">
+
+                    🎯 Priority :
+                    <strong>
+                        ${task.priority || "medium"}
+                    </strong>
+
+                </span>
+
+                <span class="task-due-date">
+
+                    📅 Due Date :
+                    <strong>
+                        ${formatDueDate(task.due_date)}
+                    </strong>
+
+                </span>
+
+                <span class="task-status">
+
+                    📌 Status :
+                    <strong>
+                        ${task.status || "Pending"}
+                    </strong>
+
+                </span>
+
+                <button
+                    class="edit-btn"
+                    onclick="editTask(${task.id})"
+                >
+                    ✏️ Edit
+                </button>
+
+                <button
+                    class="complete-btn"
+                    onclick="completeTask(${task.id})"
+                >
+                    ✅ Complete
+                </button>
+
+                <button
+                    class="delete-btn"
+                    onclick="deleteTask(${task.id})"
+                >
+                    🗑 Delete
+                </button>
+
+            `;
+
+            taskList.appendChild(li);
 
         });
 
@@ -445,9 +473,12 @@ async function loadTasks() {
 // Add New Task
 // =========================
 
-document
-    .getElementById("addTaskBtn")
-    .addEventListener(
+const addTaskBtn =
+    document.getElementById("addTaskBtn");
+
+if (addTaskBtn) {
+
+    addTaskBtn.addEventListener(
         "click",
         async () => {
 
@@ -471,25 +502,23 @@ document
             const priority =
                 document
                     .getElementById("taskPriority")
-                    .value
-                    .toLowerCase();
+                    .value;
+
+            // Optional due date input
+
+            const dueDateElement =
+                document.getElementById(
+                    "taskDueDate"
+                );
+
+            const dueDate =
+                dueDateElement
+                    ? dueDateElement.value || null
+                    : null;
 
             if (title === "") {
 
                 alert("Enter Task Title");
-
-                return;
-            }
-
-            if (
-                priority !== "low" &&
-                priority !== "medium" &&
-                priority !== "high"
-            ) {
-
-                alert(
-                    "Priority must be low, medium or high."
-                );
 
                 return;
             }
@@ -514,7 +543,7 @@ document
 
                                     priority: priority,
 
-                                    due_date: null,
+                                    due_date: dueDate,
 
                                     status: "Pending",
 
@@ -534,6 +563,10 @@ document
                     .getElementById("taskTitle")
                     .value = "";
 
+                if (dueDateElement) {
+                    dueDateElement.value = "";
+                }
+
                 alert(
                     "✅ Task Added Successfully"
                 );
@@ -548,8 +581,10 @@ document
                     "Task add nahi ho paya."
                 );
             }
+
         }
     );
+}
 
 // =========================
 // EDIT TASK
@@ -577,9 +612,7 @@ async function editTask(taskId) {
 
         if (!task) return;
 
-        // =========================
-        // Edit Title
-        // =========================
+        // New title
 
         const newTitle =
             prompt(
@@ -600,9 +633,7 @@ async function editTask(taskId) {
             return;
         }
 
-        // =========================
-        // Edit Priority
-        // =========================
+        // New priority
 
         const newPriority =
             prompt(
@@ -615,9 +646,7 @@ async function editTask(taskId) {
         }
 
         const priority =
-            newPriority
-                .trim()
-                .toLowerCase();
+            newPriority.trim().toLowerCase();
 
         if (
             priority !== "low" &&
@@ -632,9 +661,19 @@ async function editTask(taskId) {
             return;
         }
 
-        // =========================
-        // Update Task
-        // =========================
+        // New due date
+
+        const newDueDate =
+            prompt(
+                "Edit Due Date (YYYY-MM-DD):",
+                task.due_date || ""
+            );
+
+        if (newDueDate === null) {
+            return;
+        }
+
+        // Update task
 
         const updateResponse =
             await fetch(
@@ -658,7 +697,7 @@ async function editTask(taskId) {
                                 priority,
 
                             due_date:
-                                task.due_date || null,
+                                newDueDate.trim() || null,
 
                             status:
                                 task.status || "Pending",
@@ -734,13 +773,13 @@ async function completeTask(taskId) {
                                 task.title,
 
                             description:
-                                task.description,
+                                task.description || "",
 
                             priority:
-                                task.priority,
+                                task.priority || "medium",
 
                             due_date:
-                                task.due_date,
+                                task.due_date || null,
 
                             status:
                                 "Completed",
@@ -792,6 +831,7 @@ async function deleteTask(taskId) {
                 `${API}/tasks/${taskId}`,
                 {
                     method: "DELETE",
+
                     headers:
                         getAuthHeaders()
                 }
@@ -824,9 +864,12 @@ async function deleteTask(taskId) {
 // Statistics
 // =========================
 
-document
-    .getElementById("statsBtn")
-    .addEventListener(
+const statsBtn =
+    document.getElementById("statsBtn");
+
+if (statsBtn) {
+
+    statsBtn.addEventListener(
         "click",
         async () => {
 
@@ -908,16 +951,21 @@ document
                     "Statistics load nahi ho payi."
                 );
             }
+
         }
     );
+}
 
 // =========================
 // AI Quick Add
 // =========================
 
-document
-    .getElementById("aiBtn")
-    .addEventListener(
+const aiBtn =
+    document.getElementById("aiBtn");
+
+if (aiBtn) {
+
+    aiBtn.addEventListener(
         "click",
         async () => {
 
@@ -997,16 +1045,21 @@ document
                     "AI Quick Add failed."
                 );
             }
+
         }
     );
+}
 
 // =========================
 // Search Task
 // =========================
 
-document
-    .getElementById("searchBtn")
-    .addEventListener(
+const searchBtn =
+    document.getElementById("searchBtn");
+
+if (searchBtn) {
+
+    searchBtn.addEventListener(
         "click",
         async () => {
 
@@ -1047,9 +1100,7 @@ document
                         }
                     );
 
-                // =========================
-                // No Task Found
-                // =========================
+                // Task not found
 
                 if (response.status === 404) {
 
@@ -1069,8 +1120,8 @@ document
 
                 if (!result) return;
 
-                // Backend may return
-                // one task or array
+                // Backend can return
+                // object or array
 
                 const allTasks =
                     Array.isArray(result)
@@ -1104,25 +1155,81 @@ document
 
                 tasks.forEach(task => {
 
-                    taskList.appendChild(
-                        createTaskElement(task)
-                    );
+                    const li =
+                        document.createElement("li");
+
+                    li.innerHTML = `
+
+                        <b>
+                            ${task.title || "No Title"}
+                        </b>
+
+                        <span class="task-priority">
+
+                            🎯 Priority :
+                            <strong>
+                                ${task.priority || "medium"}
+                            </strong>
+
+                        </span>
+
+                        <span class="task-due-date">
+
+                            📅 Due Date :
+                            <strong>
+                                ${formatDueDate(task.due_date)}
+                            </strong>
+
+                        </span>
+
+                        <span class="task-status">
+
+                            📌 Status :
+                            <strong>
+                                ${task.status || "Pending"}
+                            </strong>
+
+                        </span>
+
+                        <button
+                            class="edit-btn"
+                            onclick="editTask(${task.id})"
+                        >
+                            ✏️ Edit
+                        </button>
+
+                        <button
+                            class="complete-btn"
+                            onclick="completeTask(${task.id})"
+                        >
+                            ✅ Complete
+                        </button>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteTask(${task.id})"
+                        >
+                            🗑 Delete
+                        </button>
+
+                    `;
+
+                    taskList.appendChild(li);
 
                 });
 
             } catch (error) {
 
-                console.error(
-                    "Search Error:",
-                    error
-                );
+                console.error(error);
 
                 alert(
                     "Search failed."
                 );
             }
+
         }
     );
+}
 
 // =========================
 // Show All Button
