@@ -78,8 +78,6 @@ async function handleResponse(response) {
 
         console.error("API Error:", errorText);
 
-        alert("API Error: " + response.status);
-
         return null;
     }
 
@@ -144,8 +142,6 @@ async function loadProjects() {
             return;
         }
 
-        // Add projects to dropdown
-
         projects.forEach(project => {
 
             const option =
@@ -160,8 +156,6 @@ async function loadProjects() {
 
         });
 
-        // Select first project automatically
-
         currentProjectId =
             projects[0].id;
 
@@ -171,9 +165,7 @@ async function loadProjects() {
         projectInfo.innerText =
             `Current Project: ${projects[0].name}`;
 
-        // Load tasks
-
-        loadTasks();
+        await loadTasks();
 
     } catch (error) {
 
@@ -254,11 +246,7 @@ if (createProjectBtn) {
                     .getElementById("projectDescription")
                     .value = "";
 
-                // Reload projects
-
                 await loadProjects();
-
-                // Select newly created project
 
                 if (project.id) {
 
@@ -285,7 +273,6 @@ if (createProjectBtn) {
                     "Project create nahi ho paya."
                 );
             }
-
         }
     );
 }
@@ -312,6 +299,75 @@ projectSelect.addEventListener(
         loadTasks();
     }
 );
+
+// =========================
+// Create Task HTML
+// =========================
+
+function createTaskElement(task) {
+
+    const li =
+        document.createElement("li");
+
+    const priority =
+        (task.priority || "medium").toLowerCase();
+
+    const status =
+        task.status || "Pending";
+
+    li.innerHTML = `
+
+        <div class="task-main">
+
+            <b>
+                ${task.title || "No Title"}
+            </b>
+
+            <span class="task-priority">
+                Priority:
+                <strong>
+                    ${priority}
+                </strong>
+            </span>
+
+            <span class="task-status">
+                Status:
+                <strong>
+                    ${status}
+                </strong>
+            </span>
+
+        </div>
+
+        <div class="task-actions">
+
+            <button
+                class="edit-btn"
+                onclick="editTask(${task.id})"
+            >
+                ✏️ Edit
+            </button>
+
+            <button
+                class="complete-btn"
+                onclick="completeTask(${task.id})"
+            >
+                ✅ Complete
+            </button>
+
+            <button
+                class="delete-btn"
+                onclick="deleteTask(${task.id})"
+            >
+                🗑 Delete
+            </button>
+
+        </div>
+
+    `;
+
+    return li;
+}
 
 // =========================
 // Load Tasks
@@ -345,14 +401,14 @@ async function loadTasks() {
 
         if (!allTasks) return;
 
-        // Only selected project's tasks
-
         const tasks =
-            allTasks.filter(
-                task =>
-                    Number(task.project_id)
-                    === Number(currentProjectId)
-            );
+            Array.isArray(allTasks)
+                ? allTasks.filter(
+                    task =>
+                        Number(task.project_id)
+                        === Number(currentProjectId)
+                )
+                : [];
 
         taskList.innerHTML = "";
 
@@ -369,46 +425,9 @@ async function loadTasks() {
 
         tasks.forEach(task => {
 
-            const li =
-                document.createElement("li");
-
-            li.innerHTML = `
-
-                <b>
-                    ${task.title || "No Title"}
-                </b>
-
-                <span class="task-status">
-
-                    Status :
-                    ${task.status || "Pending"}
-
-                </span>
-
-                <button
-                    class="edit-btn"
-                    onclick="editTask(${task.id})"
-                >
-                    ✏️ Edit
-                </button>
-
-                <button
-                    class="complete-btn"
-                    onclick="completeTask(${task.id})"
-                >
-                    ✅ Complete
-                </button>
-
-                <button
-                    class="delete-btn"
-                    onclick="deleteTask(${task.id})"
-                >
-                    🗑 Delete
-                </button>
-
-            `;
-
-            taskList.appendChild(li);
+            taskList.appendChild(
+                createTaskElement(task)
+            );
 
         });
 
@@ -452,11 +471,25 @@ document
             const priority =
                 document
                     .getElementById("taskPriority")
-                    .value;
+                    .value
+                    .toLowerCase();
 
             if (title === "") {
 
                 alert("Enter Task Title");
+
+                return;
+            }
+
+            if (
+                priority !== "low" &&
+                priority !== "medium" &&
+                priority !== "high"
+            ) {
+
+                alert(
+                    "Priority must be low, medium or high."
+                );
 
                 return;
             }
@@ -505,7 +538,7 @@ document
                     "✅ Task Added Successfully"
                 );
 
-                loadTasks();
+                await loadTasks();
 
             } catch (error) {
 
@@ -515,7 +548,6 @@ document
                     "Task add nahi ho paya."
                 );
             }
-
         }
     );
 
@@ -545,7 +577,9 @@ async function editTask(taskId) {
 
         if (!task) return;
 
-        // New title
+        // =========================
+        // Edit Title
+        // =========================
 
         const newTitle =
             prompt(
@@ -566,7 +600,9 @@ async function editTask(taskId) {
             return;
         }
 
-        // New priority
+        // =========================
+        // Edit Priority
+        // =========================
 
         const newPriority =
             prompt(
@@ -579,7 +615,9 @@ async function editTask(taskId) {
         }
 
         const priority =
-            newPriority.trim().toLowerCase();
+            newPriority
+                .trim()
+                .toLowerCase();
 
         if (
             priority !== "low" &&
@@ -594,7 +632,9 @@ async function editTask(taskId) {
             return;
         }
 
-        // Update task
+        // =========================
+        // Update Task
+        // =========================
 
         const updateResponse =
             await fetch(
@@ -641,9 +681,7 @@ async function editTask(taskId) {
             "✏️ Task Updated Successfully"
         );
 
-        // Refresh task list
-
-        loadTasks();
+        await loadTasks();
 
     } catch (error) {
 
@@ -721,7 +759,7 @@ async function completeTask(taskId) {
 
         if (!updatedTask) return;
 
-        loadTasks();
+        await loadTasks();
 
     } catch (error) {
 
@@ -754,7 +792,6 @@ async function deleteTask(taskId) {
                 `${API}/tasks/${taskId}`,
                 {
                     method: "DELETE",
-
                     headers:
                         getAuthHeaders()
                 }
@@ -771,7 +808,7 @@ async function deleteTask(taskId) {
             "🗑 Task Deleted Successfully"
         );
 
-        loadTasks();
+        await loadTasks();
 
     } catch (error) {
 
@@ -871,7 +908,6 @@ document
                     "Statistics load nahi ho payi."
                 );
             }
-
         }
     );
 
@@ -951,7 +987,7 @@ document
                     .getElementById("aiText")
                     .value = "";
 
-                loadTasks();
+                await loadTasks();
 
             } catch (error) {
 
@@ -961,7 +997,6 @@ document
                     "AI Quick Add failed."
                 );
             }
-
         }
     );
 
@@ -994,7 +1029,7 @@ document
 
             if (text === "") {
 
-                loadTasks();
+                await loadTasks();
 
                 return;
             }
@@ -1012,12 +1047,35 @@ document
                         }
                     );
 
-                const allTasks =
+                // =========================
+                // No Task Found
+                // =========================
+
+                if (response.status === 404) {
+
+                    taskList.innerHTML = `
+                        <li>
+                            No Task Found
+                        </li>
+                    `;
+
+                    return;
+                }
+
+                const result =
                     await handleResponse(
                         response
                     );
 
-                if (!allTasks) return;
+                if (!result) return;
+
+                // Backend may return
+                // one task or array
+
+                const allTasks =
+                    Array.isArray(result)
+                        ? result
+                        : [result];
 
                 const tasks =
                     allTasks.filter(
@@ -1046,58 +1104,23 @@ document
 
                 tasks.forEach(task => {
 
-                    const li =
-                        document.createElement("li");
-
-                    li.innerHTML = `
-
-                        <b>
-                            ${task.title}
-                        </b>
-
-                        <span class="task-status">
-
-                            Status :
-                            ${task.status || "Pending"}
-
-                        </span>
-
-                        <button
-                            class="edit-btn"
-                            onclick="editTask(${task.id})"
-                        >
-                            ✏️ Edit
-                        </button>
-
-                        <button
-                            class="complete-btn"
-                            onclick="completeTask(${task.id})"
-                        >
-                            ✅ Complete
-                        </button>
-
-                        <button
-                            class="delete-btn"
-                            onclick="deleteTask(${task.id})"
-                        >
-                            🗑 Delete
-                        </button>
-
-                    `;
-
-                    taskList.appendChild(li);
+                    taskList.appendChild(
+                        createTaskElement(task)
+                    );
 
                 });
 
             } catch (error) {
 
-                console.error(error);
+                console.error(
+                    "Search Error:",
+                    error
+                );
 
                 alert(
                     "Search failed."
                 );
             }
-
         }
     );
 
