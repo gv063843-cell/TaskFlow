@@ -1,5 +1,6 @@
 import re
 
+
 def mock_ai_parser(description: str):
     original = description
     text = description.lower()
@@ -16,6 +17,7 @@ def mock_ai_parser(description: str):
 
     # -------------------------
     # Due Date
+    # Exact order required
     # -------------------------
     due = None
 
@@ -36,7 +38,7 @@ def mock_ai_parser(description: str):
         "thursday",
         "friday",
         "saturday",
-        "sunday"
+        "sunday",
     ]
 
     for word in date_keywords:
@@ -45,27 +47,44 @@ def mock_ai_parser(description: str):
             break
 
     # -------------------------
-    # Remove Keywords from Title
+    # Remove priority keywords
+    # Remove EVERY occurrence
     # -------------------------
-
     title = original
 
     remove_words = [
         "urgent",
         "asap",
         "whenever",
-        "low priority"
+        "low priority",
     ]
 
     for word in remove_words:
-        title = re.sub(word, "", title, flags=re.IGNORECASE)
+        title = re.sub(
+            re.escape(word),
+            "",
+            title,
+            flags=re.IGNORECASE
+        )
 
+    # -------------------------
+    # Remove EVERY occurrence
+    # of matched due-date phrase
+    # -------------------------
     if due:
-        title = re.sub(due, "", title, flags=re.IGNORECASE)
+        title = re.sub(
+            re.escape(due),
+            "",
+            title,
+            flags=re.IGNORECASE
+        )
 
+    # -------------------------
+    # Clean title
+    # -------------------------
     title = title.strip()
 
-    if title == "":
+    if not title:
         title = "Untitled task"
 
     return {
