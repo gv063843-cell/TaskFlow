@@ -43,6 +43,10 @@ def get_tasks(
         .all()
     )
 
+    # ----------------------------------
+    # Sort by Priority
+    # ----------------------------------
+
     if sort == "priority":
 
         priority_rank = {
@@ -65,6 +69,7 @@ def get_tasks(
                 "project_id": task.project_id
             })
 
+        # Custom insertion sort
         insertion_sort(task_list, "priority")
 
         reverse_rank = {
@@ -85,7 +90,7 @@ def get_tasks(
 # Search Task
 # ======================================
 
-@router.get("/search/", response_model=list[TaskResponse])
+@router.get("/search", response_model=TaskResponse)
 def search_task(
     title: str,
     algo: str = "binary",
@@ -100,11 +105,8 @@ def search_task(
         .all()
     )
 
-    if not tasks:
-        return []
-
     # ----------------------------------
-    # Prepare task index
+    # Build task index
     # ----------------------------------
 
     task_index = []
@@ -113,10 +115,10 @@ def search_task(
 
         task_index.append({
             "id": task.id,
-            "title": task.title.lower()
+            "title": task.title
         })
 
-    search_title = title.lower().strip()
+    search_title = title.strip()
 
     # ----------------------------------
     # Binary Search
@@ -124,6 +126,7 @@ def search_task(
 
     if algo == "binary":
 
+        # Sort using custom insertion sort
         insertion_sort(task_index, "title")
 
         index = binary_search(
@@ -131,39 +134,6 @@ def search_task(
             search_title,
             "title"
         )
-
-        if index != -1:
-
-            task_id = task_index[index]["id"]
-
-            task = (
-                db.query(Task)
-                .filter(Task.id == task_id)
-                .first()
-            )
-
-            return [task]
-
-        # ----------------------------------
-        # Partial title search
-        # ----------------------------------
-
-        results = []
-
-        for item in task_index:
-
-            if search_title in item["title"]:
-
-                task = (
-                    db.query(Task)
-                    .filter(Task.id == item["id"])
-                    .first()
-                )
-
-                if task:
-                    results.append(task)
-
-        return results
 
     # ----------------------------------
     # Linear Search
@@ -177,36 +147,9 @@ def search_task(
             "title"
         )
 
-        if index != -1:
-
-            task_id = task_index[index]["id"]
-
-            task = (
-                db.query(Task)
-                .filter(Task.id == task_id)
-                .first()
-            )
-
-            return [task]
-
-        # Partial search
-
-        results = []
-
-        for item in task_index:
-
-            if search_title in item["title"]:
-
-                task = (
-                    db.query(Task)
-                    .filter(Task.id == item["id"])
-                    .first()
-                )
-
-                if task:
-                    results.append(task)
-
-        return results
+    # ----------------------------------
+    # Invalid Algorithm
+    # ----------------------------------
 
     else:
 
@@ -214,6 +157,42 @@ def search_task(
             status_code=400,
             detail="Invalid search algorithm. Use binary or linear."
         )
+
+    # ----------------------------------
+    # Not Found
+    # ----------------------------------
+
+    if index == -1:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    # ----------------------------------
+    # Get Matching Task
+    # ----------------------------------
+
+    task_id = task_index[index]["id"]
+
+    task = (
+        db.query(Task)
+        .join(Project)
+        .filter(
+            Task.id == task_id,
+            Project.owner_id == current_user.id
+        )
+        .first()
+    )
+
+    if not task:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    return task
 
 
 # ======================================
@@ -290,6 +269,7 @@ def quick_add_task(
             detail="Project not found"
         )
 
+    # Run deterministic mock AI parser
     parsed = mock_ai_parser(request.description)
 
     task = Task(
