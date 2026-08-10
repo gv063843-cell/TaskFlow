@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -16,224 +15,465 @@
         rel="stylesheet"
         href="./style.css"
     >
-
 </head>
 
 <body>
 
-<!-- =========================
-     TOP BAR
-========================== -->
+    <!-- =========================
+         APP HEADER
+    ========================== -->
 
-<div class="top-bar">
+    <header class="top-bar">
 
-    <h1>🚀 TaskFlow AI Dashboard</h1>
+        <div class="brand-area">
 
-    <button
-        id="logoutBtn"
-        class="logout-btn"
-    >
-        🚪 Logout
-    </button>
+            <div class="brand-icon">
+                ✓
+            </div>
 
-</div>
+            <div>
+                <h1>TaskFlow</h1>
+                <p>AI-powered task management</p>
+            </div>
 
+        </div>
 
-<!-- =========================
-     PROJECT MANAGEMENT
-========================== -->
-
-<div class="card">
-
-    <h2>📁 My Project</h2>
-
-    <label for="projectSelect">
-        Select Project
-    </label>
-
-    <select id="projectSelect">
-
-        <option value="">
-            Loading Projects...
-        </option>
-
-    </select>
-
-
-    <input
-        type="text"
-        id="projectName"
-        placeholder="Enter project name"
-    >
-
-
-    <input
-        type="text"
-        id="projectDescription"
-        placeholder="Project description"
-    >
-
-
-    <button id="createProjectBtn">
-        ➕ Create Project
-    </button>
-
-
-    <p id="projectInfo"></p>
-
-</div>
-
-
-<!-- =========================
-     ADD TASK
-========================== -->
-
-<div class="card">
-
-    <h2>➕ Add New Task</h2>
-
-    <!-- Task Title -->
-
-    <label for="taskTitle">
-        Task Title
-    </label>
-
-    <input
-        type="text"
-        id="taskTitle"
-        placeholder="Enter Task Title"
-    >
-
-
-    <!-- Priority -->
-
-    <label for="taskPriority">
-        Priority
-    </label>
-
-    <select id="taskPriority">
-
-        <option value="low">
-            Low Priority
-        </option>
-
-        <option
-            value="medium"
-            selected
+        <button
+            id="logoutBtn"
+            class="logout-btn"
         >
-            Medium Priority
-        </option>
+            Logout
+        </button>
 
-        <option value="high">
-            High Priority
-        </option>
-
-    </select>
+    </header>
 
 
-    <!-- Complete By / Due Date -->
+    <!-- =========================
+         MAIN DASHBOARD
+    ========================== -->
 
-    <label for="taskDueDate">
-        Complete By
-    </label>
-
-    <input
-        type="date"
-        id="taskDueDate"
-        title="Select the date by which this task should be completed"
-    >
+    <main class="dashboard">
 
 
-    <!-- Add Task Button -->
+        <!-- =========================
+             WELCOME SECTION
+        ========================== -->
 
-    <button id="addTaskBtn">
-        ➕ Add Task
-    </button>
+        <section class="welcome-section">
 
-</div>
+            <div>
+                <span class="eyebrow">
+                    WORKSPACE
+                </span>
 
+                <h2>
+                    Manage your work,
+                    <span>effortlessly.</span>
+                </h2>
 
-<!-- =========================
-     AI QUICK ADD
-========================== -->
+                <p>
+                    Organize projects, track tasks and
+                    stay productive with TaskFlow.
+                </p>
+            </div>
 
-<div class="card">
-
-    <h2>🤖 AI Quick Add</h2>
-
-    <input
-        type="text"
-        id="aiText"
-        placeholder="e.g. Finish report next Friday, urgent"
-    >
-
-    <button id="aiBtn">
-        Generate Task
-    </button>
-
-</div>
+        </section>
 
 
-<!-- =========================
-     SEARCH
-========================== -->
+        <!-- =========================
+             PROJECT CARD
+        ========================== -->
 
-<div class="card">
+        <section class="card project-card">
 
-    <h2>🔍 Search Task</h2>
+            <div class="section-heading">
 
-    <input
-        type="text"
-        id="searchText"
-        placeholder="Search task..."
-    >
+                <div class="heading-icon project-icon">
+                    📁
+                </div>
 
-    <button id="searchBtn">
-        Search
-    </button>
+                <div>
+                    <h2>Projects</h2>
 
-    <button id="showAllBtn">
-        Show All
-    </button>
+                    <p>
+                        Select or create a project
+                    </p>
+                </div>
 
-</div>
+            </div>
 
 
-<!-- =========================
-     STATISTICS
-========================== -->
+            <div class="form-group">
 
-<div class="card">
+                <label for="projectSelect">
+                    Current Project
+                </label>
 
-    <h2>📊 Statistics</h2>
+                <select id="projectSelect">
 
-    <button id="statsBtn">
-        Load Statistics
-    </button>
+                    <option value="">
+                        Loading Projects...
+                    </option>
 
-    <div id="stats"></div>
+                </select>
 
-</div>
-
-
-<!-- =========================
-     TASK LIST
-========================== -->
-
-<div class="card">
-
-    <h2>📋 Task List</h2>
-
-    <ul id="taskList"></ul>
-
-</div>
+            </div>
 
 
-<!-- =========================
-     JAVASCRIPT
-========================== -->
+            <div class="create-project">
 
-<script src="./script.js"></script>
+                <div class="form-group">
+
+                    <label for="projectName">
+                        Project Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="projectName"
+                        placeholder="e.g. Website redesign"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="projectDescription">
+                        Description
+                    </label>
+
+                    <input
+                        type="text"
+                        id="projectDescription"
+                        placeholder="What is this project about?"
+                    >
+
+                </div>
+
+
+                <button
+                    id="createProjectBtn"
+                    class="primary-btn"
+                >
+                    + Create Project
+                </button>
+
+            </div>
+
+
+            <p
+                id="projectInfo"
+                class="project-info"
+            ></p>
+
+        </section>
+
+
+        <!-- =========================
+             QUICK ACTION GRID
+        ========================== -->
+
+        <div class="feature-grid">
+
+
+            <!-- ADD TASK -->
+
+            <section class="card feature-card">
+
+                <div class="section-heading">
+
+                    <div class="heading-icon task-icon">
+                        +
+                    </div>
+
+                    <div>
+
+                        <h2>Add New Task</h2>
+
+                        <p>
+                            Create a task manually
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="taskTitle">
+                        Task Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="taskTitle"
+                        placeholder="What needs to be done?"
+                    >
+
+                </div>
+
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="taskPriority">
+                            Priority
+                        </label>
+
+                        <select id="taskPriority">
+
+                            <option value="low">
+                                Low Priority
+                            </option>
+
+                            <option
+                                value="medium"
+                                selected
+                            >
+                                Medium Priority
+                            </option>
+
+                            <option value="high">
+                                High Priority
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="taskDueDate">
+                            Complete By
+                        </label>
+
+                        <input
+                            type="date"
+                            id="taskDueDate"
+                            title="Select the date by which this task should be completed"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="addTaskBtn"
+                    class="primary-btn full-btn"
+                >
+                    + Add Task
+                </button>
+
+            </section>
+
+
+            <!-- AI QUICK ADD -->
+
+            <section class="card feature-card ai-card">
+
+                <div class="section-heading">
+
+                    <div class="heading-icon ai-icon">
+                        ✦
+                    </div>
+
+                    <div>
+
+                        <h2>AI Quick Add</h2>
+
+                        <p>
+                            Describe it naturally
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="ai-info">
+
+                    <span>AI</span>
+
+                    <p>
+                        Tell TaskFlow what you need
+                        and we'll structure it for you.
+                    </p>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="aiText">
+                        Your task
+                    </label>
+
+                    <input
+                        type="text"
+                        id="aiText"
+                        placeholder="e.g. Finish report next Friday, urgent"
+                    >
+
+                </div>
+
+
+                <button
+                    id="aiBtn"
+                    class="ai-btn full-btn"
+                >
+                    ✦ Generate Task
+                </button>
+
+            </section>
+
+        </div>
+
+
+        <!-- =========================
+             SEARCH
+        ========================== -->
+
+        <section class="card search-card">
+
+            <div class="section-heading">
+
+                <div class="heading-icon search-icon">
+                    🔍
+                </div>
+
+                <div>
+
+                    <h2>Find a Task</h2>
+
+                    <p>
+                        Search within your current project
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="search-row">
+
+                <input
+                    type="text"
+                    id="searchText"
+                    placeholder="Search task..."
+                >
+
+                <button
+                    id="searchBtn"
+                    class="primary-btn"
+                >
+                    Search
+                </button>
+
+                <button
+                    id="showAllBtn"
+                    class="secondary-btn"
+                >
+                    Show All
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             STATISTICS
+        ========================== -->
+
+        <section class="card statistics-card">
+
+            <div class="section-heading">
+
+                <div class="heading-icon stats-icon">
+                    ◔
+                </div>
+
+                <div>
+
+                    <h2>Project Statistics</h2>
+
+                    <p>
+                        Track your project progress
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="statsBtn"
+                class="secondary-btn"
+            >
+                Load Statistics
+            </button>
+
+
+            <div id="stats"></div>
+
+        </section>
+
+
+        <!-- =========================
+             TASK LIST
+        ========================== -->
+
+        <section class="card tasks-card">
+
+            <div class="tasks-header">
+
+                <div class="section-heading">
+
+                    <div class="heading-icon list-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <h2>Your Tasks</h2>
+
+                        <p>
+                            Tasks in the selected project
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <ul id="taskList"></ul>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="app-footer">
+
+        <p>
+            TaskFlow · AI-assisted productivity
+        </p>
+
+    </footer>
+    <script src="./script.js"></script>
+
 
 </body>
 
