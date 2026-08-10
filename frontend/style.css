@@ -1,6 +1,10 @@
 /* =========================================================
-   TASKFLOW — PREMIUM APP UI
-   UI ONLY — BACKEND / JS UNTOUCHED
+   TASKFLOW — PREMIUM DASHBOARD UI
+   FINAL CLEAN VERSION
+========================================================= */
+
+/* =========================================================
+   RESET
 ========================================================= */
 
 * {
@@ -39,19 +43,13 @@
     --blue: #2786d9;
     --blue-soft: #edf7ff;
 
-    --shadow-sm:
-        0 3px 10px rgba(25, 32, 55, 0.05);
-
-    --shadow:
-        0 10px 35px rgba(25, 32, 55, 0.07);
-
-    --shadow-lg:
-        0 20px 60px rgba(25, 32, 55, 0.11);
+    --shadow-sm: 0 3px 10px rgba(25, 32, 55, 0.05);
+    --shadow: 0 10px 35px rgba(25, 32, 55, 0.07);
+    --shadow-lg: 0 20px 60px rgba(25, 32, 55, 0.11);
 
     --radius: 18px;
     --radius-sm: 11px;
 }
-
 
 /* =========================================================
    BODY
@@ -86,7 +84,6 @@ body {
     line-height: 1.5;
 }
 
-
 /* =========================================================
    HEADER
 ========================================================= */
@@ -112,7 +109,6 @@ body {
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
 }
-
 
 /* =========================================================
    BRAND
@@ -151,8 +147,6 @@ body {
 }
 
 .brand-area h1 {
-    margin: 0;
-
     color: var(--text);
 
     font-size: 20px;
@@ -168,7 +162,6 @@ body {
 
     font-size: 11px;
 }
-
 
 /* =========================================================
    LOGOUT
@@ -207,7 +200,6 @@ body {
         0 6px 15px rgba(229, 72, 77, 0.18);
 }
 
-
 /* =========================================================
    MAIN
 ========================================================= */
@@ -219,7 +211,6 @@ body {
 
     padding: 46px 0 25px;
 }
-
 
 /* =========================================================
    WELCOME
@@ -284,7 +275,6 @@ body {
     font-size: 15px;
 }
 
-
 /* =========================================================
    CARD
 ========================================================= */
@@ -316,7 +306,6 @@ body {
     border-color: #e1e4ed;
 }
 
-
 /* =========================================================
    SECTION HEADINGS
 ========================================================= */
@@ -347,7 +336,6 @@ body {
 
     font-size: 12px;
 }
-
 
 /* =========================================================
    ICONS
@@ -399,7 +387,6 @@ body {
     color: #536178;
 }
 
-
 /* =========================================================
    FORMS
 ========================================================= */
@@ -418,7 +405,6 @@ label {
     font-size: 12px;
     font-weight: 700;
 }
-
 
 /* =========================================================
    INPUTS
@@ -449,8 +435,7 @@ select {
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease,
-        background 0.2s ease,
-        transform 0.2s ease;
+        background 0.2s ease;
 }
 
 input::placeholder {
@@ -478,9 +463,8 @@ select {
     cursor: pointer;
 }
 
-
 /* =========================================================
-   PROJECT
+   PROJECT CARD
 ========================================================= */
 
 .project-card {
@@ -505,6 +489,138 @@ select {
     pointer-events: none;
 }
 
+/* =========================================================
+   PROJECT ACTIONS
+========================================================= */
+
+.project-actions {
+    display: flex;
+
+    gap: 10px;
+
+    margin: 4px 0 16px;
+}
+
+.project-actions button {
+    width: auto;
+}
+
+#editProjectBtn {
+    background: #f1f3f7;
+
+    border: 1px solid var(--border);
+
+    color: #526078;
+}
+
+#editProjectBtn:hover {
+    background: #e7eaf0;
+
+    color: var(--text);
+}
+
+/* =========================================================
+   PROJECT INFO
+========================================================= */
+
+.project-info {
+    margin-top: 14px;
+
+    padding: 10px 13px;
+
+    border-radius: 10px;
+
+    background: var(--primary-soft);
+
+    color: var(--primary);
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   PROJECT PROGRESS
+========================================================= */
+
+.project-progress {
+    margin-top: 18px;
+
+    padding: 17px;
+
+    border: 1px solid #e5e6f7;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fafaff,
+            #f5f5ff
+        );
+}
+
+.project-progress-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 10px;
+
+    color: var(--text-soft);
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+.project-progress-header strong {
+    color: var(--primary);
+
+    font-size: 15px;
+}
+
+.progress-bar {
+    width: 100%;
+
+    height: 10px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #e5e7f0;
+}
+
+.progress-fill {
+    height: 100%;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            #7778ee
+        );
+
+    transition:
+        width 0.5s ease;
+}
+
+.project-progress-info {
+    margin-top: 9px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+/* =========================================================
+   CREATE PROJECT
+========================================================= */
+
 .create-project {
     display: grid;
 
@@ -528,21 +644,9 @@ select {
     margin-bottom: 0;
 }
 
-.project-info {
-    margin-top: 14px;
-
-    padding: 10px 13px;
-
-    border-radius: 10px;
-
-    background: var(--primary-soft);
-
-    color: var(--primary);
-
-    font-size: 13px;
-    font-weight: 600;
+.project-card .primary-btn {
+    min-width: 155px;
 }
-
 
 /* =========================================================
    FEATURE GRID
@@ -561,7 +665,6 @@ select {
     margin-bottom: 0;
 }
 
-
 /* =========================================================
    FORM ROW
 ========================================================= */
@@ -575,7 +678,6 @@ select {
 
     gap: 14px;
 }
-
 
 /* =========================================================
    BUTTONS
@@ -600,8 +702,7 @@ button {
     transition:
         transform 0.18s ease,
         box-shadow 0.18s ease,
-        background 0.18s ease,
-        opacity 0.18s ease;
+        background 0.18s ease;
 }
 
 button:hover {
@@ -614,13 +715,14 @@ button:active {
 
 button:disabled {
     opacity: 0.55;
+
     cursor: not-allowed;
+
     transform: none;
 }
 
-
 /* =========================================================
-   PRIMARY
+   PRIMARY BUTTON
 ========================================================= */
 
 .primary-btn {
@@ -649,9 +751,8 @@ button:disabled {
         0 10px 23px rgba(91, 92, 226, 0.28);
 }
 
-
 /* =========================================================
-   SECONDARY
+   SECONDARY BUTTON
 ========================================================= */
 
 .secondary-btn {
@@ -668,6 +769,26 @@ button:disabled {
     box-shadow: var(--shadow-sm);
 }
 
+/* =========================================================
+   DELETE BUTTON
+========================================================= */
+
+.delete-btn {
+    color: var(--danger);
+
+    background: var(--danger-soft);
+
+    border: 1px solid #ffd9db;
+}
+
+.delete-btn:hover {
+    background: var(--danger);
+
+    color: white;
+
+    box-shadow:
+        0 6px 15px rgba(229, 72, 77, 0.20);
+}
 
 /* =========================================================
    FULL BUTTON
@@ -677,9 +798,8 @@ button:disabled {
     width: 100%;
 }
 
-
 /* =========================================================
-   AI
+   AI CARD
 ========================================================= */
 
 .ai-card {
@@ -778,7 +898,6 @@ button:disabled {
         0 11px 25px rgba(124, 77, 255, 0.30);
 }
 
-
 /* =========================================================
    SEARCH
 ========================================================= */
@@ -804,7 +923,6 @@ button:disabled {
     margin: 0;
 }
 
-
 /* =========================================================
    STATISTICS
 ========================================================= */
@@ -813,38 +931,126 @@ button:disabled {
     margin-top: 22px;
 }
 
-#stats {
+.statistics-card .section-heading {
+    margin-bottom: 20px;
+}
+
+.statistics-card #statsBtn {
+    width: auto !important;
+
+    min-height: 40px;
+
+    padding: 9px 16px;
+
+    background: #f1f3f7;
+
+    color: #526078;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    font-size: 12px;
+}
+
+.statistics-card #statsBtn:hover {
+    background: var(--primary);
+
+    color: white;
+
+    border-color: var(--primary);
+
+    box-shadow:
+        0 7px 16px rgba(91, 92, 226, 0.20);
+}
+
+.statistics-card #stats {
     display: grid;
 
-    gap: 10px;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
 
     margin-top: 18px;
 }
 
-.stat-box {
-    padding: 15px 16px;
+.statistics-card .stat-box {
+    position: relative;
+
+    min-height: 85px;
+
+    padding: 16px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
 
     border: 1px solid var(--border);
 
-    border-radius: 13px;
+    border-radius: 14px;
 
-    background: var(--surface-soft);
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f9fafc
+        );
 
-    color: var(--text-soft);
+    color: var(--muted);
 
-    font-size: 13px;
+    font-size: 11px;
 
     transition: 0.2s ease;
 }
 
-.stat-box:hover {
-    background: white;
+.statistics-card .stat-box:hover {
+    transform: translateY(-2px);
 
-    transform: translateY(-1px);
+    background: white;
 
     box-shadow: var(--shadow-sm);
 }
 
+.statistics-card .stat-box strong {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--text);
+
+    font-size: 25px;
+
+    line-height: 1;
+
+    font-weight: 800;
+}
+
+.statistics-card .stat-total {
+    border-left: 4px solid var(--primary);
+}
+
+.statistics-card .stat-total strong {
+    color: var(--primary);
+}
+
+.statistics-card .stat-completed {
+    border-left: 4px solid var(--success);
+}
+
+.statistics-card .stat-completed strong {
+    color: var(--success);
+}
+
+.statistics-card .stat-pending {
+    border-left: 4px solid var(--warning);
+}
+
+.statistics-card .stat-pending strong {
+    color: var(--warning);
+}
 
 /* =========================================================
    TASK LIST
@@ -856,6 +1062,7 @@ button:disabled {
 
 .tasks-header {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 }
@@ -869,7 +1076,6 @@ button:disabled {
 
     list-style: none;
 }
-
 
 /* =========================================================
    TASK ITEM
@@ -916,7 +1122,6 @@ button:disabled {
     font-weight: 750;
 }
 
-
 /* =========================================================
    TASK INFO
 ========================================================= */
@@ -925,9 +1130,11 @@ button:disabled {
 .task-due-date,
 .task-status {
     display: inline-flex;
+
     align-items: center;
 
     margin-right: 16px;
+
     margin-bottom: 11px;
 
     color: var(--muted);
@@ -943,9 +1150,8 @@ button:disabled {
     color: var(--text-soft);
 }
 
-
 /* =========================================================
-   TASK ACTIONS
+   TASK ACTION BUTTONS
 ========================================================= */
 
 .edit-btn,
@@ -961,7 +1167,6 @@ button:disabled {
 
     font-size: 12px;
 }
-
 
 /* EDIT */
 
@@ -984,7 +1189,6 @@ button:disabled {
         0 5px 12px rgba(22, 130, 199, 0.18);
 }
 
-
 /* COMPLETE */
 
 .complete-btn {
@@ -1006,10 +1210,9 @@ button:disabled {
         0 5px 12px rgba(32, 166, 106, 0.18);
 }
 
+/* TASK DELETE */
 
-/* DELETE */
-
-.delete-btn {
+#taskList .delete-btn {
     background: var(--danger-soft);
 
     border: 1px solid #ffd9db;
@@ -1017,7 +1220,7 @@ button:disabled {
     color: var(--danger);
 }
 
-.delete-btn:hover {
+#taskList .delete-btn:hover {
     background: var(--danger);
 
     color: white;
@@ -1026,96 +1229,705 @@ button:disabled {
         0 5px 12px rgba(229, 72, 77, 0.18);
 }
 
-
 /* =========================================================
-   EDIT MODAL
+   PREMIUM AI HERO SLIDER
 ========================================================= */
 
-.edit-modal {
-    position: fixed;
+.hero-slider {
+    position: relative;
 
-    inset: 0;
+    width: 100%;
 
-    z-index: 9999;
+    min-height: 390px;
 
-    display: flex;
+    margin-bottom: 35px;
 
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
 
-    padding: 20px;
+    border-radius: 24px;
+
+    border: 1px solid #e4e6f0;
 
     background:
-        rgba(15, 23, 42, 0.58);
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(91, 92, 226, 0.13),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f8f8ff
+        );
 
-    backdrop-filter: blur(6px);
+    box-shadow: var(--shadow-lg);
 }
 
-.edit-modal-content {
-    width: min(500px, 100%);
+/* =========================================================
+   HERO SLIDES
+========================================================= */
 
-    padding: 26px;
+.hero-slide {
+    display: none;
 
-    background: white;
+    min-height: 390px;
 
-    border: 1px solid rgba(255,255,255,0.5);
+    padding: 55px 65px;
 
-    border-radius: 18px;
+    grid-template-columns:
+        1.15fr
+        0.85fr;
 
-    box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.25);
+    align-items: center;
 
-    animation: modalIn 0.2s ease;
+    gap: 35px;
 }
 
-@keyframes modalIn {
+.hero-slide.active {
+    display: grid;
+
+    animation: heroFade 0.45s ease;
+}
+
+@keyframes heroFade {
     from {
         opacity: 0;
-        transform: translateY(10px) scale(0.98);
+        transform: translateX(12px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateX(0);
     }
 }
 
-.edit-modal-content input,
-.edit-modal-content textarea,
-.edit-modal-content select {
-    width: 100%;
+/* =========================================================
+   HERO CONTENT
+========================================================= */
 
-    margin: 8px 0 15px;
+.hero-content {
+    position: relative;
 
-    padding: 11px;
+    z-index: 2;
+}
+
+.hero-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    margin-bottom: 15px;
+
+    padding: 7px 12px;
+
+    border-radius: 30px;
+
+    background: var(--primary-soft);
+
+    color: var(--primary);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+}
+
+.hero-content h2 {
+    max-width: 600px;
+
+    margin: 0 0 15px;
+
+    color: var(--text);
+
+    font-size: clamp(30px, 4vw, 46px);
+
+    line-height: 1.08;
+
+    letter-spacing: -1.5px;
+
+    font-weight: 800;
+}
+
+.hero-content h2 span {
+    display: block;
+
+    color: var(--primary);
+}
+
+.hero-content p {
+    max-width: 570px;
+
+    margin-bottom: 20px;
+
+    color: var(--muted);
+
+    font-size: 14px;
+
+    line-height: 1.7;
+}
+
+/* =========================================================
+   HERO FEATURES
+========================================================= */
+
+.hero-features {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 9px;
+}
+
+.hero-features span {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 8px 11px;
+
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.9);
 
     border: 1px solid var(--border);
 
-    border-radius: 10px;
+    color: var(--text-soft);
 
-    background: #f8fafc;
+    font-size: 11px;
+
+    font-weight: 700;
+
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================================
+   HERO VISUAL
+========================================================= */
+
+.hero-visual {
+    position: relative;
+
+    min-height: 260px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+/* =========================================================
+   HERO MAIN ICON
+========================================================= */
+
+.hero-main-icon {
+    width: 125px;
+
+    height: 125px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 35px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7071f0,
+            #4d4ecb
+        );
+
+    color: white;
+
+    font-size: 50px;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 20px 45px rgba(91, 92, 226, 0.28);
+
+    animation:
+        heroFloat 4s ease-in-out infinite;
+}
+
+@keyframes heroFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* =========================================================
+   FLOATING CARDS
+========================================================= */
+
+.floating-card {
+    position: absolute;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 12px 14px;
+
+    min-width: 185px;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border: 1px solid var(--border);
+
+    border-radius: 13px;
+
+    box-shadow: var(--shadow);
+
+    z-index: 3;
+}
+
+.floating-card > span {
+    width: 32px;
+
+    height: 32px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 9px;
+
+    background: var(--primary-soft);
+
+    color: var(--primary);
+
+    font-weight: 800;
+}
+
+.floating-card strong {
+    display: block;
 
     color: var(--text);
+
+    font-size: 12px;
 }
 
-.edit-modal-content textarea {
-    min-height: 100px;
+.floating-card small {
+    display: block;
 
-    resize: vertical;
+    margin-top: 2px;
+
+    color: var(--muted);
+
+    font-size: 9px;
 }
 
-.edit-buttons {
+.card-one {
+    top: 25px;
+
+    left: 0;
+
+    animation:
+        cardOne 4s ease-in-out infinite;
+}
+
+.card-two {
+    right: 0;
+
+    bottom: 25px;
+
+    animation:
+        cardTwo 4s ease-in-out infinite;
+}
+
+@keyframes cardOne {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+@keyframes cardTwo {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(7px);
+    }
+}
+
+/* =========================================================
+   PROJECT PREVIEW
+========================================================= */
+
+.project-preview {
+    width: 300px;
+
+    padding: 22px;
+
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border: 1px solid var(--border);
+
+    box-shadow: var(--shadow-lg);
+}
+
+.preview-top {
     display: flex;
+
+    align-items: center;
 
     gap: 10px;
 
-    margin-top: 10px;
+    margin-bottom: 25px;
 }
 
-.edit-buttons button {
-    flex: 1;
+.preview-top span {
+    width: 38px;
+
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: var(--primary-soft);
+
+    color: var(--primary);
 }
 
+.preview-top strong {
+    color: var(--text);
+
+    font-size: 14px;
+}
+
+.preview-progress-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 8px;
+}
+
+.preview-progress-top small {
+    color: var(--muted);
+}
+
+.preview-progress-top strong {
+    color: var(--primary);
+}
+
+.preview-bar {
+    width: 100%;
+
+    height: 9px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #e8e9f1;
+}
+
+.preview-fill {
+    height: 100%;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            #7778ee
+        );
+}
+
+.preview-tasks {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-top: 20px;
+}
+
+.preview-tasks span {
+    padding: 8px 10px;
+
+    border-radius: 8px;
+
+    background: var(--surface-soft);
+
+    color: var(--text-soft);
+
+    font-size: 11px;
+}
+
+/* =========================================================
+   STATS PREVIEW
+========================================================= */
+
+.stats-preview {
+    width: 300px;
+
+    padding: 22px;
+
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border: 1px solid var(--border);
+
+    box-shadow: var(--shadow-lg);
+}
+
+.stats-preview-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    color: var(--text-soft);
+
+    font-size: 12px;
+}
+
+.stats-preview-header strong {
+    color: var(--primary);
+
+    font-size: 11px;
+}
+
+.stats-number {
+    margin-top: 18px;
+
+    color: var(--text);
+
+    font-size: 42px;
+
+    font-weight: 800;
+
+    line-height: 1;
+}
+
+.stats-number small {
+    color: var(--muted);
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.mini-stats {
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.mini-stats div {
+    padding: 12px;
+
+    border-radius: 10px;
+
+    background: var(--surface-soft);
+
+    text-align: center;
+}
+
+.mini-stats strong {
+    display: block;
+
+    color: var(--text);
+
+    font-size: 18px;
+}
+
+.mini-stats small {
+    color: var(--muted);
+
+    font-size: 9px;
+}
+
+.mini-progress {
+    width: 100%;
+
+    height: 8px;
+
+    margin-top: 18px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #e7e8ef;
+}
+
+.mini-progress-fill {
+    height: 100%;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            #7778ee
+        );
+}
+
+/* =========================================================
+   HERO SLIDER ARROWS
+========================================================= */
+
+.hero-prev,
+.hero-next {
+    position: absolute;
+
+    top: 50%;
+
+    width: 40px !important;
+
+    height: 40px !important;
+
+    min-height: 40px !important;
+
+    padding: 0 !important;
+
+    display: flex !important;
+
+    align-items: center;
+
+    justify-content: center;
+
+    transform: translateY(-50%);
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.95);
+
+    border: 1px solid var(--border);
+
+    color: var(--text);
+
+    font-size: 25px;
+
+    line-height: 1;
+
+    box-shadow: var(--shadow);
+
+    z-index: 20;
+}
+
+.hero-prev {
+    left: 18px;
+}
+
+.hero-next {
+    right: 18px;
+}
+
+.hero-prev:hover,
+.hero-next:hover {
+    background: var(--primary);
+
+    color: white;
+
+    transform:
+        translateY(-50%)
+        scale(1.05);
+}
+
+/* =========================================================
+   HERO DOTS
+========================================================= */
+
+.hero-dots {
+    position: absolute;
+
+    left: 50%;
+
+    bottom: 17px;
+
+    transform: translateX(-50%);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    z-index: 20;
+}
+
+.hero-dot {
+    width: 8px !important;
+
+    height: 8px !important;
+
+    min-height: 8px !important;
+
+    padding: 0 !important;
+
+    margin: 0 !important;
+
+    border: none !important;
+
+    border-radius: 50% !important;
+
+    background: #d5d7e3;
+
+    box-shadow: none !important;
+
+    transform: none !important;
+}
+
+.hero-dot:hover {
+    transform: scale(1.15) !important;
+
+    background: #aeb1c2;
+}
+
+.hero-dot.active {
+    width: 24px !important;
+
+    border-radius: 20px !important;
+
+    background: var(--primary);
+}
 
 /* =========================================================
    FOOTER
@@ -1133,7 +1945,6 @@ button:disabled {
     font-size: 11px;
 }
 
-
 /* =========================================================
    LOGIN / REGISTER
 ========================================================= */
@@ -1144,6 +1955,7 @@ button:disabled {
     display: flex;
 
     align-items: center;
+
     justify-content: center;
 
     padding: 20px;
@@ -1151,6 +1963,7 @@ button:disabled {
 
 .login-card {
     width: 100%;
+
     max-width: 450px;
 
     padding: 38px;
@@ -1239,7 +2052,6 @@ button:disabled {
     text-decoration: underline;
 }
 
-
 /* =========================================================
    TABLET
 ========================================================= */
@@ -1264,14 +2076,73 @@ button:disabled {
         grid-template-columns: 1fr;
     }
 
-}
+    .statistics-card #stats {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
 
+    /* Hero */
+
+    .hero-slide {
+        padding: 45px 50px;
+
+        grid-template-columns: 1fr;
+
+        text-align: center;
+
+        gap: 10px;
+    }
+
+    .hero-content {
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+    }
+
+    .hero-content p {
+        max-width: 600px;
+    }
+
+    .hero-visual {
+        min-height: 210px;
+    }
+
+    .hero-main-icon {
+        width: 95px;
+
+        height: 95px;
+
+        font-size: 38px;
+    }
+
+    .floating-card {
+        min-width: 165px;
+
+        padding: 9px 11px;
+    }
+
+    .card-one {
+        left: 10%;
+
+        top: 10px;
+    }
+
+    .card-two {
+        right: 10%;
+
+        bottom: 5px;
+    }
+}
 
 /* =========================================================
    MOBILE
 ========================================================= */
 
 @media (max-width: 600px) {
+
+    /* Header */
 
     .top-bar {
         min-height: 66px;
@@ -1281,6 +2152,7 @@ button:disabled {
 
     .brand-icon {
         width: 37px;
+
         height: 37px;
 
         border-radius: 10px;
@@ -1308,13 +2180,13 @@ button:disabled {
         font-size: 11px;
     }
 
+    /* Dashboard */
 
     .dashboard {
         width: calc(100% - 22px);
 
         padding: 27px 0 10px;
     }
-
 
     .welcome-section {
         margin-bottom: 22px;
@@ -1336,6 +2208,7 @@ button:disabled {
         font-size: 12px;
     }
 
+    /* Cards */
 
     .card {
         padding: 18px;
@@ -1345,7 +2218,6 @@ button:disabled {
         border-radius: 15px;
     }
 
-
     .section-heading {
         gap: 10px;
 
@@ -1354,6 +2226,7 @@ button:disabled {
 
     .heading-icon {
         width: 37px;
+
         height: 37px;
 
         border-radius: 10px;
@@ -1369,13 +2242,13 @@ button:disabled {
         font-size: 10px;
     }
 
+    /* Forms */
 
     .form-row {
         grid-template-columns: 1fr;
 
         gap: 0;
     }
-
 
     .search-row {
         grid-template-columns: 1fr;
@@ -1385,11 +2258,53 @@ button:disabled {
         width: 100%;
     }
 
+    /* Buttons */
 
     button {
         width: 100%;
     }
 
+    /* Project */
+
+    .project-actions {
+        display: grid;
+
+        grid-template-columns: 1fr;
+
+        gap: 8px;
+    }
+
+    .project-actions button {
+        width: 100%;
+    }
+
+    .project-progress {
+        padding: 14px;
+    }
+
+    .project-progress-header {
+        font-size: 12px;
+    }
+
+    .project-progress-info {
+        font-size: 10px;
+    }
+
+    /* Statistics */
+
+    .statistics-card #stats {
+        grid-template-columns: 1fr;
+    }
+
+    .statistics-card #statsBtn {
+        width: 100% !important;
+    }
+
+    .statistics-card .stat-box {
+        min-height: 70px;
+    }
+
+    /* Tasks */
 
     .edit-btn,
     .complete-btn,
@@ -1399,7 +2314,6 @@ button:disabled {
         margin: 5px 0 0;
     }
 
-
     #taskList li {
         padding: 15px;
     }
@@ -1407,7 +2321,6 @@ button:disabled {
     #taskList li b {
         font-size: 15px;
     }
-
 
     .task-priority,
     .task-due-date,
@@ -1421,6 +2334,7 @@ button:disabled {
         font-size: 11px;
     }
 
+    /* Footer */
 
     .app-footer {
         width: calc(100% - 22px);
@@ -1428,6 +2342,7 @@ button:disabled {
         margin-bottom: 20px;
     }
 
+    /* Login */
 
     .login-card {
         padding: 25px 20px;
@@ -1435,8 +2350,152 @@ button:disabled {
         border-radius: 16px;
     }
 
-}
+    /* =====================================================
+       MOBILE HERO
+    ===================================================== */
 
+    .hero-slider {
+        min-height: 500px;
+
+        margin-bottom: 25px;
+
+        border-radius: 18px;
+    }
+
+    .hero-slide {
+        min-height: 500px;
+
+        padding: 35px 22px 55px;
+
+        display: none;
+    }
+
+    .hero-slide.active {
+        display: grid;
+    }
+
+    .hero-content h2 {
+        font-size: 29px;
+
+        letter-spacing: -0.9px;
+    }
+
+    .hero-content p {
+        font-size: 12px;
+
+        line-height: 1.6;
+    }
+
+    .hero-badge {
+        font-size: 8px;
+
+        padding: 6px 9px;
+    }
+
+    .hero-features {
+        justify-content: center;
+
+        gap: 6px;
+    }
+
+    .hero-features span {
+        padding: 6px 8px;
+
+        font-size: 9px;
+    }
+
+    .hero-visual {
+        min-height: 205px;
+    }
+
+    .hero-main-icon {
+        width: 80px;
+
+        height: 80px;
+
+        border-radius: 23px;
+
+        font-size: 32px;
+    }
+
+    .floating-card {
+        min-width: 145px;
+
+        padding: 8px 9px;
+
+        gap: 7px;
+    }
+
+    .floating-card > span {
+        width: 27px;
+
+        height: 27px;
+
+        font-size: 11px;
+    }
+
+    .floating-card strong {
+        font-size: 10px;
+    }
+
+    .floating-card small {
+        font-size: 8px;
+    }
+
+    .card-one {
+        left: 0;
+
+        top: 5px;
+    }
+
+    .card-two {
+        right: 0;
+
+        bottom: 5px;
+    }
+
+    .project-preview,
+    .stats-preview {
+        width: min(280px, 85%);
+    }
+
+    .hero-prev,
+    .hero-next {
+        width: 32px !important;
+
+        height: 32px !important;
+
+        min-height: 32px !important;
+
+        font-size: 20px;
+    }
+
+    .hero-prev {
+        left: 8px;
+    }
+
+    .hero-next {
+        right: 8px;
+    }
+
+    .hero-dots {
+        bottom: 12px;
+
+        gap: 6px;
+    }
+
+    .hero-dot {
+        width: 7px !important;
+
+        height: 7px !important;
+
+        min-height: 7px !important;
+    }
+
+    .hero-dot.active {
+        width: 20px !important;
+    }
+}
 
 /* =========================================================
    SMALL MOBILE
@@ -1456,4 +2515,37 @@ button:disabled {
         padding: 15px;
     }
 
+    .project-progress {
+        padding: 12px;
+    }
+
+    /* Hero */
+
+    .hero-slide {
+        min-height: 490px;
+
+        padding-left: 18px;
+
+        padding-right: 18px;
+    }
+
+    .hero-content h2 {
+        font-size: 25px;
+    }
+
+    .hero-content p {
+        font-size: 11px;
+    }
+
+    .hero-visual-card,
+    .project-preview,
+    .stats-preview {
+        width: 205px;
+    }
+
+    .floating-card {
+        min-width: 130px;
+
+        transform: scale(0.92);
+    }
 }

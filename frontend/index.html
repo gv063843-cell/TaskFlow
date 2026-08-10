@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -15,89 +16,534 @@
         rel="stylesheet"
         href="./style.css"
     >
+
 </head>
 
 <body>
 
+
+<!-- =========================
+     APP HEADER
+========================== -->
+
+<header class="top-bar">
+
+    <div class="brand-area">
+
+        <div class="brand-icon">
+            ✓
+        </div>
+
+        <div>
+            <h1>TaskFlow</h1>
+            <p>AI-powered task management</p>
+        </div>
+
+    </div>
+
+    <button
+        id="logoutBtn"
+        class="logout-btn"
+    >
+        Logout
+    </button>
+
+</header>
+
+
+<!-- =========================
+     MAIN DASHBOARD
+========================== -->
+
+<main class="dashboard">
+
+
     <!-- =========================
-         APP HEADER
+         PREMIUM HERO SLIDER
     ========================== -->
 
-    <header class="top-bar">
+    <section class="hero-slider" id="heroSlider">
 
-        <div class="brand-area">
+        <!-- SLIDE 1 -->
 
-            <div class="brand-icon">
-                ✓
+        <div class="hero-slide active">
+
+            <div class="hero-content">
+
+                <span class="hero-badge">
+                    ✦ AI POWERED
+                </span>
+
+                <h2>
+                    Work smarter
+                    <span>with TaskFlow AI.</span>
+                </h2>
+
+                <p>
+                    Turn your ideas into organized tasks
+                    and manage your daily work effortlessly.
+                </p>
+
+                <div class="hero-features">
+
+                    <span>✓ Smart Tasks</span>
+
+                    <span>✓ AI Quick Add</span>
+
+                    <span>✓ Easy Management</span>
+
+                </div>
+
             </div>
 
-            <div>
-                <h1>TaskFlow</h1>
-                <p>AI-powered task management</p>
+            <div class="hero-visual">
+
+                <div class="floating-card card-one">
+                    <span>✓</span>
+                    <div>
+                        <strong>Smart Tasks</strong>
+                        <small>Organized automatically</small>
+                    </div>
+                </div>
+
+                <div class="hero-main-icon">
+                    ✦
+                </div>
+
+                <div class="floating-card card-two">
+                    <span>⚡</span>
+                    <div>
+                        <strong>Stay Productive</strong>
+                        <small>Get more done</small>
+                    </div>
+                </div>
+
             </div>
 
         </div>
 
-        <button
-            id="logoutBtn"
-            class="logout-btn"
-        >
-            Logout
-        </button>
 
-    </header>
+        <!-- SLIDE 2 -->
 
+        <div class="hero-slide">
 
-    <!-- =========================
-         MAIN DASHBOARD
-    ========================== -->
+            <div class="hero-content">
 
-    <main class="dashboard">
-
-
-        <!-- =========================
-             WELCOME SECTION
-        ========================== -->
-
-        <section class="welcome-section">
-
-            <div>
-                <span class="eyebrow">
-                    WORKSPACE
+                <span class="hero-badge">
+                    📁 PROJECT MANAGEMENT
                 </span>
 
                 <h2>
-                    Manage your work,
-                    <span>effortlessly.</span>
+                    Organize every
+                    <span>project in one place.</span>
                 </h2>
 
                 <p>
-                    Organize projects, track tasks and
-                    stay productive with TaskFlow.
+                    Create projects, manage tasks and keep
+                    everything organized from one dashboard.
                 </p>
+
+                <div class="hero-features">
+
+                    <span>✓ Multiple Projects</span>
+
+                    <span>✓ Task Organization</span>
+
+                    <span>✓ Easy Tracking</span>
+
+                </div>
+
             </div>
 
-        </section>
+            <div class="hero-visual">
+
+                <div class="project-preview">
+
+                    <div class="preview-top">
+                        <span>📁</span>
+                        <strong>Website Project</strong>
+                    </div>
+
+                    <div class="preview-progress">
+
+                        <div class="preview-progress-top">
+
+                            <small>Progress</small>
+
+                            <strong>75%</strong>
+
+                        </div>
+
+                        <div class="preview-bar">
+
+                            <div
+                                class="preview-fill"
+                                style="width: 75%;"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="preview-tasks">
+
+                        <span>✓ Homepage</span>
+                        <span>✓ Design</span>
+                        <span>○ Testing</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
 
 
-        <!-- =========================
-             PROJECT CARD
-        ========================== -->
+        <!-- SLIDE 3 -->
 
-        <section class="card project-card">
+        <div class="hero-slide">
+
+            <div class="hero-content">
+
+                <span class="hero-badge">
+                    📊 PROGRESS TRACKING
+                </span>
+
+                <h2>
+                    Track progress.
+                    <span>Get things done.</span>
+                </h2>
+
+                <p>
+                    Monitor completed tasks, pending work and
+                    project progress at a glance.
+                </p>
+
+                <div class="hero-features">
+
+                    <span>✓ Live Progress</span>
+
+                    <span>✓ Statistics</span>
+
+                    <span>✓ Task Tracking</span>
+
+                </div>
+
+            </div>
+
+            <div class="hero-visual">
+
+                <div class="stats-preview">
+
+                    <div class="stats-preview-header">
+                        <span>Project Overview</span>
+                        <strong>Today</strong>
+                    </div>
+
+                    <div class="stats-number">
+                        24
+                        <small>Tasks</small>
+                    </div>
+
+                    <div class="mini-stats">
+
+                        <div>
+                            <strong>18</strong>
+                            <small>Completed</small>
+                        </div>
+
+                        <div>
+                            <strong>6</strong>
+                            <small>Pending</small>
+                        </div>
+
+                    </div>
+
+                    <div class="mini-progress">
+
+                        <div
+                            class="mini-progress-fill"
+                            style="width: 75%;"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SLIDER CONTROLS -->
+
+        <button
+            class="hero-prev"
+            id="heroPrev"
+            type="button"
+            aria-label="Previous slide"
+        >
+            ‹
+        </button>
+
+
+        <button
+            class="hero-next"
+            id="heroNext"
+            type="button"
+            aria-label="Next slide"
+        >
+            ›
+        </button>
+
+
+        <!-- SLIDER DOTS -->
+
+        <div class="hero-dots">
+
+            <button
+                class="hero-dot active"
+                data-slide="0"
+                type="button"
+                aria-label="Slide 1"
+            ></button>
+
+            <button
+                class="hero-dot"
+                data-slide="1"
+                type="button"
+                aria-label="Slide 2"
+            ></button>
+
+            <button
+                class="hero-dot"
+                data-slide="2"
+                type="button"
+                aria-label="Slide 3"
+            ></button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         WELCOME SECTION
+    ========================== -->
+
+    <section class="welcome-section">
+
+        <div>
+
+            <span class="eyebrow">
+                WORKSPACE
+            </span>
+
+            <h2>
+                Manage your work,
+                <span>effortlessly.</span>
+            </h2>
+
+            <p>
+                Organize projects, track tasks and
+                stay productive with TaskFlow.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         PROJECT CARD
+    ========================== -->
+
+    <section class="card project-card">
+
+        <div class="section-heading">
+
+            <div class="heading-icon project-icon">
+                📁
+            </div>
+
+            <div>
+
+                <h2>Projects</h2>
+
+                <p>
+                    Select or create a project
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- CURRENT PROJECT -->
+
+        <div class="form-group">
+
+            <label for="projectSelect">
+                Current Project
+            </label>
+
+            <select id="projectSelect">
+
+                <option value="">
+                    Loading Projects...
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- PROJECT ACTIONS -->
+
+        <div class="project-actions">
+
+            <button
+                id="editProjectBtn"
+                class="secondary-btn"
+                onclick="editProject()"
+            >
+                ✏️ Edit Project
+            </button>
+
+            <button
+                id="deleteProjectBtn"
+                class="delete-btn"
+                onclick="deleteProject()"
+            >
+                🗑️ Delete Project
+            </button>
+
+        </div>
+
+
+        <!-- PROJECT INFO -->
+
+        <p
+            id="projectInfo"
+            class="project-info"
+        ></p>
+
+
+        <!-- PROJECT PROGRESS -->
+
+        <div
+            id="projectProgress"
+            class="project-progress"
+        >
+
+            <div class="project-progress-header">
+
+                <span>
+                    Project Progress
+                </span>
+
+                <strong>
+                    0%
+                </strong>
+
+            </div>
+
+
+            <div class="progress-bar">
+
+                <div
+                    class="progress-fill"
+                    style="width: 0%"
+                ></div>
+
+            </div>
+
+
+            <div class="project-progress-info">
+
+                0 completed
+                ·
+                0 pending
+                ·
+                0 total
+
+            </div>
+
+        </div>
+
+
+        <!-- CREATE PROJECT -->
+
+        <div class="create-project">
+
+            <div class="form-group">
+
+                <label for="projectName">
+                    Project Name
+                </label>
+
+                <input
+                    type="text"
+                    id="projectName"
+                    placeholder="e.g. Website redesign"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="projectDescription">
+                    Description
+                </label>
+
+                <input
+                    type="text"
+                    id="projectDescription"
+                    placeholder="What is this project about?"
+                >
+
+            </div>
+
+
+            <button
+                id="createProjectBtn"
+                class="primary-btn"
+            >
+                + Create Project
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         QUICK ACTION GRID
+    ========================== -->
+
+    <div class="feature-grid">
+
+
+        <!-- ADD TASK -->
+
+        <section class="card feature-card">
 
             <div class="section-heading">
 
-                <div class="heading-icon project-icon">
-                    📁
+                <div class="heading-icon task-icon">
+                    +
                 </div>
 
                 <div>
-                    <h2>Projects</h2>
+
+                    <h2>Add New Task</h2>
 
                     <p>
-                        Select or create a project
+                        Create a task manually
                     </p>
+
                 </div>
 
             </div>
@@ -105,306 +551,60 @@
 
             <div class="form-group">
 
-                <label for="projectSelect">
-                    Current Project
+                <label for="taskTitle">
+                    Task Title
                 </label>
-
-                <select id="projectSelect">
-
-                    <option value="">
-                        Loading Projects...
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="create-project">
-
-                <div class="form-group">
-
-                    <label for="projectName">
-                        Project Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="projectName"
-                        placeholder="e.g. Website redesign"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="projectDescription">
-                        Description
-                    </label>
-
-                    <input
-                        type="text"
-                        id="projectDescription"
-                        placeholder="What is this project about?"
-                    >
-
-                </div>
-
-
-                <button
-                    id="createProjectBtn"
-                    class="primary-btn"
-                >
-                    + Create Project
-                </button>
-
-            </div>
-
-
-            <p
-                id="projectInfo"
-                class="project-info"
-            ></p>
-
-        </section>
-
-
-        <!-- =========================
-             QUICK ACTION GRID
-        ========================== -->
-
-        <div class="feature-grid">
-
-
-            <!-- ADD TASK -->
-
-            <section class="card feature-card">
-
-                <div class="section-heading">
-
-                    <div class="heading-icon task-icon">
-                        +
-                    </div>
-
-                    <div>
-
-                        <h2>Add New Task</h2>
-
-                        <p>
-                            Create a task manually
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="taskTitle">
-                        Task Title
-                    </label>
-
-                    <input
-                        type="text"
-                        id="taskTitle"
-                        placeholder="What needs to be done?"
-                    >
-
-                </div>
-
-
-                <div class="form-row">
-
-                    <div class="form-group">
-
-                        <label for="taskPriority">
-                            Priority
-                        </label>
-
-                        <select id="taskPriority">
-
-                            <option value="low">
-                                Low Priority
-                            </option>
-
-                            <option
-                                value="medium"
-                                selected
-                            >
-                                Medium Priority
-                            </option>
-
-                            <option value="high">
-                                High Priority
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="taskDueDate">
-                            Complete By
-                        </label>
-
-                        <input
-                            type="date"
-                            id="taskDueDate"
-                            title="Select the date by which this task should be completed"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <button
-                    id="addTaskBtn"
-                    class="primary-btn full-btn"
-                >
-                    + Add Task
-                </button>
-
-            </section>
-
-
-            <!-- AI QUICK ADD -->
-
-            <section class="card feature-card ai-card">
-
-                <div class="section-heading">
-
-                    <div class="heading-icon ai-icon">
-                        ✦
-                    </div>
-
-                    <div>
-
-                        <h2>AI Quick Add</h2>
-
-                        <p>
-                            Describe it naturally
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="ai-info">
-
-                    <span>AI</span>
-
-                    <p>
-                        Tell TaskFlow what you need
-                        and we'll structure it for you.
-                    </p>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="aiText">
-                        Your task
-                    </label>
-
-                    <input
-                        type="text"
-                        id="aiText"
-                        placeholder="e.g. Finish report next Friday, urgent"
-                    >
-
-                </div>
-
-
-                <button
-                    id="aiBtn"
-                    class="ai-btn full-btn"
-                >
-                    ✦ Generate Task
-                </button>
-
-            </section>
-
-        </div>
-
-
-        <!-- =========================
-             SEARCH
-        ========================== -->
-
-        <section class="card search-card">
-
-            <div class="section-heading">
-
-                <div class="heading-icon search-icon">
-                    🔍
-                </div>
-
-                <div>
-
-                    <h2>Find a Task</h2>
-
-                    <p>
-                        Search within your current project
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="search-row">
 
                 <input
                     type="text"
-                    id="searchText"
-                    placeholder="Search task..."
+                    id="taskTitle"
+                    placeholder="What needs to be done?"
                 >
-
-                <button
-                    id="searchBtn"
-                    class="primary-btn"
-                >
-                    Search
-                </button>
-
-                <button
-                    id="showAllBtn"
-                    class="secondary-btn"
-                >
-                    Show All
-                </button>
 
             </div>
 
-        </section>
 
+            <div class="form-row">
 
-        <!-- =========================
-             STATISTICS
-        ========================== -->
+                <div class="form-group">
 
-        <section class="card statistics-card">
+                    <label for="taskPriority">
+                        Priority
+                    </label>
 
-            <div class="section-heading">
+                    <select id="taskPriority">
 
-                <div class="heading-icon stats-icon">
-                    ◔
+                        <option value="low">
+                            Low Priority
+                        </option>
+
+                        <option
+                            value="medium"
+                            selected
+                        >
+                            Medium Priority
+                        </option>
+
+                        <option value="high">
+                            High Priority
+                        </option>
+
+                    </select>
+
                 </div>
 
-                <div>
 
-                    <h2>Project Statistics</h2>
+                <div class="form-group">
 
-                    <p>
-                        Track your project progress
-                    </p>
+                    <label for="taskDueDate">
+                        Complete By
+                    </label>
+
+                    <input
+                        type="date"
+                        id="taskDueDate"
+                        title="Select the date by which this task should be completed"
+                    >
 
                 </div>
 
@@ -412,68 +612,222 @@
 
 
             <button
-                id="statsBtn"
-                class="secondary-btn"
+                id="addTaskBtn"
+                class="primary-btn full-btn"
             >
-                Load Statistics
+                + Add Task
             </button>
-
-
-            <div id="stats"></div>
 
         </section>
 
 
-        <!-- =========================
-             TASK LIST
-        ========================== -->
+        <!-- AI QUICK ADD -->
 
-        <section class="card tasks-card">
+        <section class="card feature-card ai-card">
 
-            <div class="tasks-header">
+            <div class="section-heading">
 
-                <div class="section-heading">
+                <div class="heading-icon ai-icon">
+                    ✦
+                </div>
 
-                    <div class="heading-icon list-icon">
-                        ✓
-                    </div>
+                <div>
 
-                    <div>
+                    <h2>AI Quick Add</h2>
 
-                        <h2>Your Tasks</h2>
-
-                        <p>
-                            Tasks in the selected project
-                        </p>
-
-                    </div>
+                    <p>
+                        Describe it naturally
+                    </p>
 
                 </div>
 
             </div>
 
 
-            <ul id="taskList"></ul>
+            <div class="ai-info">
+
+                <span>AI</span>
+
+                <p>
+                    Tell TaskFlow what you need
+                    and we'll structure it for you.
+                </p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="aiText">
+                    Your task
+                </label>
+
+                <input
+                    type="text"
+                    id="aiText"
+                    placeholder="e.g. Finish report next Friday, urgent"
+                >
+
+            </div>
+
+
+            <button
+                id="aiBtn"
+                class="ai-btn full-btn"
+            >
+                ✦ Generate Task
+            </button>
 
         </section>
 
-
-    </main>
+    </div>
 
 
     <!-- =========================
-         FOOTER
+         SEARCH
     ========================== -->
 
-    <footer class="app-footer">
+    <section class="card search-card">
 
-        <p>
-            TaskFlow · AI-assisted productivity
-        </p>
+        <div class="section-heading">
 
-    </footer>
-    <script src="./script.js"></script>
+            <div class="heading-icon search-icon">
+                🔍
+            </div>
 
+            <div>
+
+                <h2>Find a Task</h2>
+
+                <p>
+                    Search within your current project
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="search-row">
+
+            <input
+                type="text"
+                id="searchText"
+                placeholder="Search task..."
+            >
+
+            <button
+                id="searchBtn"
+                class="primary-btn"
+            >
+                Search
+            </button>
+
+            <button
+                id="showAllBtn"
+                class="secondary-btn"
+            >
+                Show All
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         STATISTICS
+    ========================== -->
+
+    <section class="card statistics-card">
+
+        <div class="section-heading">
+
+            <div class="heading-icon stats-icon">
+                ◔
+            </div>
+
+            <div>
+
+                <h2>Project Statistics</h2>
+
+                <p>
+                    Track your project progress
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <button
+            id="statsBtn"
+            class="secondary-btn"
+        >
+            Load Statistics
+        </button>
+
+
+        <div id="stats"></div>
+
+    </section>
+
+
+    <!-- =========================
+         TASK LIST
+    ========================== -->
+
+    <section class="card tasks-card">
+
+        <div class="tasks-header">
+
+            <div class="section-heading">
+
+                <div class="heading-icon list-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <h2>Your Tasks</h2>
+
+                    <p>
+                        Tasks in the selected project
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <ul id="taskList"></ul>
+
+    </section>
+
+
+</main>
+
+
+<!-- =========================
+     FOOTER
+========================== -->
+
+<footer class="app-footer">
+
+    <p>
+        TaskFlow · AI-assisted productivity
+    </p>
+
+</footer>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================== -->
+
+<script src="./script.js"></script>
 
 </body>
 

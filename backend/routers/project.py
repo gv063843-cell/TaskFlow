@@ -10,14 +10,17 @@ from models.user import User
 from schemas.project import ProjectCreate, ProjectResponse
 from dependencies import get_current_user
 
+
 router = APIRouter(
     prefix="/projects",
     tags=["Projects"]
 )
 
-# ==========================
-# Get All Projects of Current User
-# ==========================
+
+# =========================================================
+# GET ALL PROJECTS
+# =========================================================
+
 @router.get("/", response_model=list[ProjectResponse])
 def get_projects(
     db: Session = Depends(get_db),
@@ -33,10 +36,15 @@ def get_projects(
     return projects
 
 
-# ==========================
-# Create Project
-# ==========================
-@router.post("/", response_model=ProjectResponse, status_code=201)
+# =========================================================
+# CREATE PROJECT
+# =========================================================
+
+@router.post(
+    "/",
+    response_model=ProjectResponse,
+    status_code=201
+)
 def create_project(
     project: ProjectCreate,
     db: Session = Depends(get_db),
@@ -56,10 +64,89 @@ def create_project(
     return new_project
 
 
-# ==========================
-# Get Single Project
-# ==========================
-@router.get("/{project_id}", response_model=ProjectResponse)
+# =========================================================
+# PROJECT STATISTICS
+# IMPORTANT: KEEP THIS ABOVE /{project_id}
+# =========================================================
+
+@router.get("/stats/summary")
+def project_statistics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    stats = (
+        db.query(
+            Project.id,
+            Project.name,
+
+            func.count(Task.id).label(
+                "total_tasks"
+            ),
+
+            func.sum(
+                case(
+                    (Task.status == "Completed", 1),
+                    else_=0
+                )
+            ).label(
+                "completed_tasks"
+            )
+        )
+        .outerjoin(
+            Task,
+            Project.id == Task.project_id
+        )
+        .filter(
+            Project.owner_id == current_user.id
+        )
+        .group_by(
+            Project.id,
+            Project.name
+        )
+        .all()
+    )
+
+    result = []
+
+    for project in stats:
+
+        total = project.total_tasks or 0
+
+        completed = (
+            project.completed_tasks or 0
+        )
+
+        pending = total - completed
+
+        progress = (
+            round(
+                (completed / total) * 100
+            )
+            if total > 0
+            else 0
+        )
+
+        result.append({
+            "project_id": project.id,
+            "project_name": project.name,
+            "total_tasks": total,
+            "completed_tasks": completed,
+            "pending_tasks": pending,
+            "progress": progress
+        })
+
+    return result
+
+
+# =========================================================
+# GET SINGLE PROJECT
+# =========================================================
+
+@router.get(
+    "/{project_id}",
+    response_model=ProjectResponse
+)
 def get_project(
     project_id: int,
     db: Session = Depends(get_db),
@@ -76,6 +163,7 @@ def get_project(
     )
 
     if not project:
+
         raise HTTPException(
             status_code=404,
             detail="Project not found"
@@ -84,44 +172,87 @@ def get_project(
     return project
 
 
-# ==========================
-# Project Statistics
-# ==========================
-@router.get("/stats/summary")
-def project_statistics(
+# =========================================================
+# UPDATE PROJECT
+# =========================================================
+
+@router.put(
+    "/{project_id}",
+    response_model=ProjectResponse
+)
+def update_project(
+    project_id: int,
+    project_data: ProjectCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
 
-    stats = (
-        db.query(
-            Project.id,
-            Project.name,
-            func.count(Task.id).label("total_tasks"),
-            func.sum(
-                case(
-                    (Task.status == "Completed", 1),
-                    else_=0
-                )
-            ).label("completed_tasks")
+    project = (
+        db.query(Project)
+        .filter(
+            Project.id == project_id,
+            Project.owner_id == current_user.id
         )
-        .outerjoin(Task, Project.id == Task.project_id)
-        .filter(Project.owner_id == current_user.id)
-        .group_by(Project.id, Project.name)
-        .all()
+        .first()
     )
 
-    result = []
+    if not project:
 
-    for project in stats:
-        completed = project.completed_tasks or 0
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found"
+        )
 
-        result.append({
-            "project_id": project.id,
-            "project_name": project.name,
-            "total_tasks": project.total_tasks,
-            "completed_tasks": completed,
-            "pending_tasks": project.total_tasks - completed
-        })
+    project.name = project_data.name
 
-    return result
+    project.description = (
+        project_data.description
+    )
+
+    db.commit()
+    db.refresh(project)
+
+    return project
+
+
+# =========================================================
+# DELETE PROJECT
+# =========================================================
+
+@router.delete("/{project_id}")
+def delete_project(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    project = (
+        db.query(Project)
+        .filter(
+            Project.id == project_id,
+            Project.owner_id == current_user.id
+        )
+        .first()
+    )
+
+    if not project:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found"
+        )
+
+    # Delete tasks belonging to project first
+    db.query(Task).filter(
+        Task.project_id == project_id
+    ).delete(
+        synchronize_session=False
+    )
+
+    db.delete(project)
+
+    db.commit()
+
+    return {
+        "message": "Project deleted successfully"
+    }

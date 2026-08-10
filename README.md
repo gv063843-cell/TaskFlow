@@ -2,7 +2,7 @@
 
 TaskFlow is a full-stack task and project management application built with **FastAPI, SQLAlchemy, SQLite, HTML, CSS and JavaScript**.
 
-The application allows users to register and log in, create projects and tasks, manage tasks through CRUD operations, search and sort tasks using custom algorithms, view project statistics, and create structured tasks from natural-language descriptions using an AI-assisted rule-based Quick Add parser.
+The application allows users to register and log in, create projects and tasks, manage tasks through CRUD operations, search tasks, view project statistics, and create structured tasks from natural-language descriptions using an **AI-assisted deterministic rule-based Quick Add parser**.
 
 The application supports both **local development and live deployment**.
 
@@ -12,10 +12,12 @@ The application supports both **local development and live deployment**.
 
 * User registration and login
 * JWT-based authentication
-* Secure password handling
-* Project creation and listing
+* Secure password hashing
+* Automatic default project creation for new users
+* Project creation, listing, editing and deletion
 * Project-wise task management
 * Task creation, listing, updating and deletion
+* Task completion
 * Task priority management
 * Task due-date support
 * Task status management
@@ -26,8 +28,8 @@ The application supports both **local development and live deployment**.
 * Algorithm comparison benchmarks
 * Algorithm test cases
 * AI-assisted Quick Add
-* Deterministic mock AI parser
-* LocalStorage support
+* Deterministic rule-based task parser
+* LocalStorage authentication handling
 * Responsive frontend dashboard
 * FastAPI request-timing middleware
 * CORS configuration
@@ -64,6 +66,7 @@ The application supports both **local development and live deployment**.
 
 * Render — Backend API
 * Netlify — Frontend
+* GitHub — Version Control
 
 ---
 
@@ -79,8 +82,6 @@ TaskFlow/
 │   │   ├── check_algorithms.py
 │   │   └── benchmark.py
 │   │
-│   ├── app/
-│   │
 │   ├── models/
 │   │   ├── __init__.py
 │   │   ├── user.py
@@ -91,16 +92,15 @@ TaskFlow/
 │   │   ├── auth.py
 │   │   ├── project.py
 │   │   ├── task.py
-│   │   └── ...
+│   │   └── user.py
 │   │
 │   ├── schemas/
+│   │   ├── user.py
 │   │   ├── task.py
 │   │   ├── project.py
 │   │   └── quick_add.py
 │   │
 │   ├── tests/
-│   │
-│   ├── utils/
 │   │
 │   ├── ai_parser.py
 │   ├── auth.py
@@ -121,7 +121,6 @@ TaskFlow/
 │   ├── script.js
 │   └── style.css
 │
-├── venv/
 ├── README.md
 └── requirements.txt
 ```
@@ -232,6 +231,9 @@ http://127.0.0.1:3000
         ▼
 Local FastAPI Backend
 http://127.0.0.1:8000
+        │
+        ▼
+SQLite Database
 ```
 
 ---
@@ -254,6 +256,12 @@ Backend:
 http://127.0.0.1:8000
 ```
 
+Swagger:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
 ## Live Environment
 
 Frontend:
@@ -268,13 +276,19 @@ Backend:
 https://taskflow-api-ax00.onrender.com
 ```
 
-The frontend API configuration is connected to the deployed backend, while the backend CORS configuration allows both local and deployed frontend origins.
+Swagger:
+
+```text
+https://taskflow-api-ax00.onrender.com/docs
+```
+
+The frontend automatically selects the local API when running on localhost/127.0.0.1 and the deployed Render API when running on the live frontend.
 
 ---
 
 # Authentication
 
-TaskFlow uses JWT-based authentication.
+TaskFlow uses **JWT-based authentication**.
 
 ## User Registration
 
@@ -294,6 +308,12 @@ Example request:
 }
 ```
 
+After registration, TaskFlow automatically creates a default project:
+
+```text
+My Tasks
+```
+
 ## Login
 
 ```text
@@ -302,9 +322,7 @@ POST /auth/login
 
 Authenticates a registered user and returns a JWT access token.
 
-The frontend sends login credentials using form URL encoding.
-
-The returned token is stored in browser LocalStorage.
+The token is stored in browser LocalStorage.
 
 Authenticated API requests use:
 
@@ -312,7 +330,7 @@ Authenticated API requests use:
 Authorization: Bearer <token>
 ```
 
-If the token expires or becomes invalid, the frontend clears the stored token and redirects the user to the login page.
+If the token becomes invalid or expires, the frontend removes the token and redirects the user to the login page.
 
 ---
 
@@ -335,17 +353,6 @@ Example request:
 }
 ```
 
-Example response:
-
-```json
-{
-  "id": 1,
-  "name": "TaskFlow API",
-  "description": "My First Project",
-  "owner_id": 4
-}
-```
-
 ## List Projects
 
 ```text
@@ -354,7 +361,38 @@ GET /projects/
 
 Returns projects belonging to the authenticated user.
 
-The frontend displays projects inside a project-selection dropdown.
+## Get Project
+
+```text
+GET /projects/{project_id}
+```
+
+## Update Project
+
+```text
+PUT /projects/{project_id}
+```
+
+Supports updating:
+
+* Project name
+* Project description
+
+## Delete Project
+
+```text
+DELETE /projects/{project_id}
+```
+
+Deleting a project also removes its associated tasks according to the configured database relationships.
+
+The frontend provides:
+
+* Project selection
+* Create Project
+* Edit Project
+* Delete Project
+* Project progress
 
 ---
 
@@ -381,40 +419,20 @@ Example request:
 }
 ```
 
-Example response:
-
-```json
-{
-  "title": "Complete project",
-  "description": "Complete TaskFlow project",
-  "priority": "medium",
-  "due_date": null,
-  "status": "Pending",
-  "project_id": 1,
-  "id": 1
-}
-```
-
 ## List Tasks
 
 ```text
 GET /tasks/
 ```
 
-Returns tasks belonging to projects owned by the authenticated user.
+Returns tasks accessible to the authenticated user.
 
-The frontend filters the returned tasks according to the currently selected project.
+The frontend filters tasks according to the currently selected project.
 
-## Get Task by ID
+## Get Task
 
 ```text
 GET /tasks/{task_id}
-```
-
-Example:
-
-```text
-GET /tasks/2
 ```
 
 ## Update Task
@@ -423,7 +441,7 @@ GET /tasks/2
 PUT /tasks/{task_id}
 ```
 
-The endpoint supports updating:
+Supports updating:
 
 * Title
 * Description
@@ -432,38 +450,25 @@ The endpoint supports updating:
 * Status
 * Project
 
-Example request:
-
-```json
-{
-  "title": "Updated task",
-  "description": "Updated description",
-  "priority": "high",
-  "due_date": "tomorrow",
-  "status": "Completed",
-  "project_id": 1
-}
-```
-
 ## Delete Task
 
 ```text
 DELETE /tasks/{task_id}
 ```
 
-Example response:
+## Complete Task
 
-```json
-{
-  "message": "Task Deleted Successfully"
-}
+The frontend provides a **Complete** action that updates the task status to:
+
+```text
+Completed
 ```
 
 ---
 
 # Task Priority
 
-TaskFlow supports three task priority levels:
+TaskFlow supports three priority levels:
 
 ```text
 low
@@ -471,11 +476,7 @@ medium
 high
 ```
 
-The frontend allows the user to select the priority while creating or editing a task.
-
-The backend validates the allowed priority values.
-
-Priority ranking used by the sorting algorithm:
+Priority ranking used by the custom sorting algorithm:
 
 ```text
 low = 1
@@ -483,24 +484,22 @@ medium = 2
 high = 3
 ```
 
+The backend validates the allowed priority values.
+
 ---
 
 # Task Status
 
 Tasks support status management.
 
-Typical statuses include:
+The dashboard currently uses:
 
 ```text
 Pending
 Completed
 ```
 
-The dashboard provides a Complete action that updates the selected task status to:
-
-```text
-Completed
-```
+Users can mark a pending task as completed directly from the dashboard.
 
 ---
 
@@ -508,11 +507,11 @@ Completed
 
 Tasks support optional due dates.
 
-The frontend allows users to provide a due date when creating or editing a task.
+The frontend allows users to provide a due date while creating or editing a task.
 
-Dates are displayed in a user-friendly format in the dashboard.
+The dashboard displays dates in a user-friendly format.
 
-The AI Quick Add parser can also detect natural-language date hints such as:
+The Quick Add parser can also recognize natural-language date hints such as:
 
 ```text
 today
@@ -531,28 +530,30 @@ sunday
 
 # Task Search
 
-TaskFlow supports custom task-search algorithms.
+TaskFlow supports custom search algorithms.
 
 ## Binary Search
 
+Example:
+
 ```text
-GET /tasks/search?title=game&algo=binary
+GET /tasks/search/?title=game&algo=binary
 ```
 
-Before binary search, task data is prepared using the custom insertion-sort implementation.
+Binary search operates on sorted data prepared using the custom insertion-sort implementation.
 
-Binary search provides:
+Complexity:
 
 ```text
 O(log n)
 ```
 
-search complexity after sorting.
-
 ## Linear Search
 
+Example:
+
 ```text
-GET /tasks/search?title=game&algo=linear
+GET /tasks/search/?title=game&algo=linear
 ```
 
 Linear search checks records sequentially.
@@ -563,7 +564,7 @@ Worst-case complexity:
 O(n)
 ```
 
-The frontend allows users to search tasks and displays the matching tasks for the selected project.
+The frontend provides task search and displays results belonging to the currently selected project.
 
 ---
 
@@ -577,37 +578,24 @@ Endpoint:
 GET /projects/stats/summary
 ```
 
-Example response:
-
-```json
-[
-  {
-    "project_id": 1,
-    "project_name": "TaskFlow API",
-    "total_tasks": 1,
-    "completed_tasks": 0,
-    "pending_tasks": 1
-  }
-]
-```
-
 Statistics include:
 
 * Total tasks
 * Completed tasks
 * Pending tasks
+* Project progress percentage
 
-The statistics are calculated using SQL aggregate operations.
+The frontend displays the statistics for the currently selected project.
 
-The frontend displays statistics for the currently selected project.
+The backend calculates the statistics using SQL aggregate operations.
 
 ---
 
 # Algorithms Engine
 
-TaskFlow implements custom algorithms manually instead of relying entirely on Python's built-in sorting and searching functions.
+TaskFlow implements custom sorting and searching algorithms instead of relying entirely on Python's built-in sorting and searching functions.
 
-The algorithm implementations are located in:
+The implementations are located in:
 
 ```text
 backend/algorithms/
@@ -619,8 +607,8 @@ backend/algorithms/
 
 Insertion sort is used for:
 
-* Sorting tasks by priority
-* Preparing task data for binary search
+* Sorting task data
+* Preparing data for binary search
 
 Complexity:
 
@@ -665,30 +653,30 @@ Space:        O(1)
 
 # Algorithm Testing
 
-Algorithm checks are implemented in:
+Algorithm validation is implemented in:
 
 ```text
 backend/algorithms/check_algorithms.py
 ```
 
-Run the checks from the backend directory:
+Run:
 
 ```powershell
 python algorithms\check_algorithms.py
 ```
 
-The test suite verifies:
+The checks cover:
 
 * Insertion sort
 * Binary search
 * Linear search
-* Comparison-count behaviour
+* Comparison counting
 * Empty-list handling
 * Single-element handling
 * First, middle and last search positions
 * Not-found conditions
 
-Example successful output:
+Example:
 
 ```text
 PASS: insertion_sort empty list
@@ -721,7 +709,7 @@ Run:
 python algorithms\benchmark.py
 ```
 
-Observed comparison counts:
+Example observed comparison counts:
 
 | Data Size | Insertion Sort | Binary Search | Linear Search |
 | --------: | -------------: | ------------: | ------------: |
@@ -729,28 +717,17 @@ Observed comparison counts:
 |       500 |        124,750 |             1 |           251 |
 |     3,000 |      4,498,500 |             1 |         1,501 |
 
-The benchmark demonstrates the expected growth of insertion sort and linear search compared with binary search.
+These results demonstrate the expected growth patterns of the implemented algorithms.
 
-Insertion sort requires significantly more comparisons as the dataset grows, while binary search remains efficient on sorted data.
+Insertion sort requires significantly more comparisons as the dataset grows, while binary search remains efficient when operating on sorted data.
 
 ---
 
-# AI Quick Add
+# AI-Assisted Quick Add
 
-TaskFlow provides an AI-assisted Quick Add feature.
+TaskFlow provides an **AI-assisted Quick Add** feature that converts natural-language task descriptions into structured task information.
 
-The feature accepts a natural-language task description and converts it into structured task information.
-
-The generated task can contain:
-
-* Title
-* Priority
-* Due-date hint
-* Description
-* Status
-* Project
-
-The implementation uses a deterministic mock AI parser and does not require an external AI API key or external network request.
+The current implementation uses a **deterministic rule-based parser** and does not require an external AI API key or external AI service.
 
 Endpoint:
 
@@ -767,7 +744,16 @@ Example request:
 }
 ```
 
-Example response:
+The parser can generate:
+
+* Title
+* Description
+* Priority
+* Due-date hint
+* Status
+* Project ID
+
+Example:
 
 ```json
 {
@@ -776,8 +762,7 @@ Example response:
   "priority": "high",
   "due_date": "tomorrow",
   "status": "Pending",
-  "project_id": 4,
-  "id": 19
+  "project_id": 4
 }
 ```
 
@@ -785,7 +770,7 @@ Example response:
 
 # AI Parser Logic
 
-The parser recognizes priority-related keywords and phrases such as:
+The parser recognizes priority-related phrases such as:
 
 ```text
 urgent
@@ -794,7 +779,7 @@ high priority
 low priority
 ```
 
-It also recognizes due-date phrases such as:
+It also recognizes date-related phrases such as:
 
 ```text
 today
@@ -816,15 +801,15 @@ saturday
 sunday
 ```
 
-Recognized priority and date phrases are extracted from the natural-language input and converted into structured task fields.
+Recognized priority and date phrases are converted into structured fields.
 
-The parser also removes recognized priority and date phrases when generating the task title.
+The parser also removes recognized keywords from the task title where applicable.
 
 ---
 
 # AI Quick Add Examples
 
-## Example 1
+### Example 1
 
 Input:
 
@@ -832,7 +817,7 @@ Input:
 Finish report today
 ```
 
-Parsed result:
+Result:
 
 ```json
 {
@@ -842,9 +827,7 @@ Parsed result:
 }
 ```
 
----
-
-## Example 2
+### Example 2
 
 Input:
 
@@ -852,7 +835,7 @@ Input:
 Read Python documentation next week
 ```
 
-Parsed result:
+Result:
 
 ```json
 {
@@ -862,9 +845,7 @@ Parsed result:
 }
 ```
 
----
-
-## Example 3
+### Example 3
 
 Input:
 
@@ -872,7 +853,7 @@ Input:
 Submit assignment with low priority
 ```
 
-Parsed result:
+Result:
 
 ```json
 {
@@ -882,9 +863,7 @@ Parsed result:
 }
 ```
 
----
-
-## Example 4
+### Example 4
 
 Input:
 
@@ -892,7 +871,7 @@ Input:
 Finish backend task urgently
 ```
 
-Parsed result:
+Result:
 
 ```json
 {
@@ -904,53 +883,37 @@ Parsed result:
 
 ---
 
-## Example 5
-
-Input:
-
-```text
-Complete project tomorrow with high priority
-```
-
-Parsed result:
-
-```json
-{
-  "title": "Complete project with",
-  "priority": "high",
-  "due_date": "tomorrow"
-}
-```
-
----
-
 # LocalStorage
 
-The frontend uses browser LocalStorage for client-side state and authentication handling.
+The frontend uses browser LocalStorage for authentication state.
 
-The JWT token is stored after successful login.
-
-Example:
+After successful login:
 
 ```text
-localStorage
-    ↓
-token
-    ↓
+Login
+  ↓
+JWT Token
+  ↓
+LocalStorage
+  ↓
+Authorization Header
+```
+
+Authenticated requests use:
+
+```text
 Authorization: Bearer <token>
 ```
 
-The frontend uses the stored token when making authenticated API requests.
+During logout, the token is removed.
 
-When a user logs out, the token is removed from LocalStorage.
-
-If the backend returns an HTTP 401 response, the frontend clears the token and redirects the user to the login page.
+If the backend returns HTTP `401 Unauthorized`, the frontend clears the token and redirects the user to the login page.
 
 ---
 
 # Request Timing Middleware
 
-FastAPI middleware measures the processing time of incoming requests.
+FastAPI middleware measures the processing time of incoming HTTP requests.
 
 The middleware logs:
 
@@ -966,15 +929,15 @@ POST /projects/ 8.15 ms
 PUT /tasks/2 5.27 ms
 ```
 
-This helps monitor backend request performance during development and deployment.
+This provides basic backend performance monitoring during development and deployment.
 
 ---
 
 # CORS Configuration
 
-The FastAPI application includes CORS configuration to allow the frontend to communicate with the backend.
+The backend is configured to allow communication from local and deployed frontend environments.
 
-Configured local frontend origins include:
+Configured local origins include:
 
 ```text
 http://localhost:3000
@@ -989,49 +952,40 @@ The deployed Netlify frontend is also allowed:
 https://wonderful-licorice-7b4921.netlify.app
 ```
 
-This allows TaskFlow to work in both local and live environments.
+This allows TaskFlow to operate in both local and live environments.
 
 ---
 
 # Local Architecture
 
-When testing locally, the application works as follows:
-
 ```text
-                Browser
-                   │
-                   ▼
-        Local Frontend Server
-        http://127.0.0.1:3000
-                   │
-                   ▼
-          FastAPI Backend
-        http://127.0.0.1:8000
-                   │
-                   ▼
-             SQLite DB
-```
-
-The local database is:
-
-```text
-backend/taskflow.db
+                 Browser
+                    │
+                    ▼
+          Local Frontend Server
+          127.0.0.1:3000
+                    │
+                    ▼
+             FastAPI Backend
+             127.0.0.1:8000
+                    │
+                    ▼
+              SQLite Database
+             taskflow.db
 ```
 
 ---
 
 # Live Architecture
 
-The deployed application works as follows:
-
 ```text
                  Browser
                     │
                     ▼
-             Netlify Frontend
+            Netlify Frontend
                     │
                     ▼
-             Render FastAPI
+             Render Backend
                     │
                     ▼
           Production Database
@@ -1053,9 +1007,9 @@ https://taskflow-api-ax00.onrender.com
 
 # Deployment
 
-## Backend Deployment
+## Backend
 
-The TaskFlow backend is deployed using Render.
+The FastAPI backend is deployed using Render.
 
 Live API:
 
@@ -1069,15 +1023,13 @@ Swagger documentation:
 https://taskflow-api-ax00.onrender.com/docs
 ```
 
-Health endpoint:
+Health check:
 
 ```text
 https://taskflow-api-ax00.onrender.com/health
 ```
 
----
-
-## Frontend Deployment
+## Frontend
 
 The frontend is deployed using Netlify.
 
@@ -1087,15 +1039,15 @@ Live application:
 https://wonderful-licorice-7b4921.netlify.app
 ```
 
-The live frontend communicates with the deployed Render API.
+The deployed frontend communicates with the deployed Render backend.
 
 ---
 
 # Local and Live Testing
 
-TaskFlow can be tested locally without replacing or disabling the live deployment.
+TaskFlow can be tested independently in both environments.
 
-## Local Testing
+## Local
 
 ```text
 Frontend:
@@ -1103,9 +1055,12 @@ http://127.0.0.1:3000
 
 Backend:
 http://127.0.0.1:8000
+
+Swagger:
+http://127.0.0.1:8000/docs
 ```
 
-## Live Testing
+## Live
 
 ```text
 Frontend:
@@ -1113,9 +1068,12 @@ https://wonderful-licorice-7b4921.netlify.app
 
 Backend:
 https://taskflow-api-ax00.onrender.com
+
+Swagger:
+https://taskflow-api-ax00.onrender.com/docs
 ```
 
-The CORS configuration supports both environments.
+The same application architecture works in both environments.
 
 ---
 
@@ -1123,25 +1081,25 @@ The CORS configuration supports both environments.
 
 FastAPI automatically provides Swagger/OpenAPI documentation.
 
-## Local Swagger
+Local:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-## Live Swagger
+Live:
 
 ```text
 https://taskflow-api-ax00.onrender.com/docs
 ```
 
-The Swagger interface can be used to inspect and test available API endpoints.
+Swagger can be used to inspect and manually test the available API endpoints.
 
 ---
 
 # Database
 
-TaskFlow uses SQLAlchemy for database interaction.
+TaskFlow uses SQLAlchemy as its ORM.
 
 ## Local Database
 
@@ -1151,39 +1109,39 @@ Local development uses SQLite:
 backend/taskflow.db
 ```
 
-Database tables are created using:
-
-```python
-Base.metadata.create_all(bind=engine)
-```
-
-The project contains models for:
+Database tables include:
 
 * Users
 * Projects
 * Tasks
 
+Tables are initialized using:
+
+```python
+Base.metadata.create_all(bind=engine)
+```
+
 ## Production Database
 
-The application also supports PostgreSQL for production deployment.
+The backend is designed to support PostgreSQL for production environments.
 
 ---
 
 # Security
 
-TaskFlow implements authentication using JWT tokens.
+TaskFlow implements JWT-based authentication and protected API access.
 
 Security-related functionality includes:
 
-* Password authentication
-* JWT access tokens
+* Password hashing
+* JWT authentication
 * Authorization headers
-* Protected API endpoints
+* Protected endpoints
 * User-specific project access
 * User-specific task access
-* Automatic logout when authentication expires
+* Automatic logout when authentication becomes invalid
 
-The frontend does not send the password with every API request. After authentication, the JWT token is used for protected requests.
+Passwords are hashed before being stored in the database.
 
 ---
 
@@ -1195,10 +1153,13 @@ The frontend handles common API errors including:
 * HTTP 404 Not Found
 * HTTP 4xx validation errors
 * Network connection failures
+* Project operation failures
+* Task operation failures
+* Search failures
+* Statistics failures
+* Quick Add failures
 
-When authentication fails, the user is redirected to the login page.
-
-The frontend also displays user-friendly messages for failed project, task, search, statistics and AI Quick Add operations.
+Authentication failures automatically redirect the user to the login page.
 
 ---
 
@@ -1206,22 +1167,27 @@ The frontend also displays user-friendly messages for failed project, task, sear
 
 The dashboard provides:
 
-* User authentication
+* Login
+* Registration
 * Project selection
 * Project creation
+* Project editing
+* Project deletion
+* Project progress
 * Task creation
 * Task listing
 * Task editing
 * Task completion
 * Task deletion
 * Task search
-* Statistics
+* Task statistics
 * AI Quick Add
 * Logout
-
-Tasks are displayed according to the currently selected project.
+* Hero slider
 
 The frontend communicates with the FastAPI backend using the JavaScript Fetch API.
+
+Tasks displayed on the dashboard are associated with the currently selected project.
 
 ---
 
@@ -1229,7 +1195,7 @@ The frontend communicates with the FastAPI backend using the JavaScript Fetch AP
 
 TaskFlow is maintained using Git and GitHub for version control.
 
-The repository contains the final application source code including:
+The repository contains:
 
 * Backend
 * Frontend
@@ -1245,7 +1211,7 @@ The final production code is maintained on the `main` branch.
 
 # Repository
 
-GitHub repository:
+GitHub:
 
 ```text
 https://github.com/gv063843-cell/TaskFlow
@@ -1253,15 +1219,25 @@ https://github.com/gv063843-cell/TaskFlow
 
 ---
 
-# Submission
+# Final Project Status
 
-TaskFlow is maintained as a single GitHub repository containing:
+TaskFlow is a full-stack application combining:
 
-* `backend/` — FastAPI backend, SQLAlchemy models, routers, schemas, authentication, algorithms, tests and AI Quick Add parser
-* `frontend/` — HTML, CSS and JavaScript dashboard
-* `requirements.txt` — Python dependencies
-* `README.md` — complete project documentation, API information, algorithms, benchmarks, setup instructions and deployment information
+```text
+Frontend
+HTML + CSS + JavaScript
+        │
+        ▼
+Backend
+FastAPI + SQLAlchemy
+        │
+        ▼
+Database
+SQLite / PostgreSQL
+```
 
-The application has been tested locally and is also deployed online.
+The project includes authentication, project management, task management, custom algorithms, search, statistics, AI-assisted Quick Add, responsive frontend functionality, API documentation and deployment configuration.
 
-The final system supports both local development and live usage.
+The application has been tested in the local environment and is deployed for live usage.
+
+TaskFlow supports both **local development/testing** and **live production usage**.

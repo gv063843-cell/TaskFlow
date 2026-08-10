@@ -2,10 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
+
 from models.user import User
 from models.project import Project
+from models.task import Task
 
 from schemas.user import UserCreate, UserResponse
+
 from security import hash_password
 from dependencies import get_current_user
 
@@ -46,12 +49,10 @@ def create_user(
     )
 
     if existing_user:
-
         raise HTTPException(
             status_code=400,
             detail="Email already registered"
         )
-
 
     # Create User
     new_user = User(
@@ -65,7 +66,6 @@ def create_user(
     # Get new user's ID
     db.flush()
 
-
     # ==========================
     # Automatically Create Project
     # ==========================
@@ -77,7 +77,6 @@ def create_user(
     )
 
     db.add(default_project)
-
 
     # Save everything
     db.commit()
@@ -91,7 +90,10 @@ def create_user(
 # Current Logged-in User
 # ==========================
 
-@router.get("/me", response_model=UserResponse)
+@router.get(
+    "/me",
+    response_model=UserResponse
+)
 def get_me(
     current_user: User = Depends(get_current_user)
 ):
@@ -103,7 +105,10 @@ def get_me(
 # Get Single User
 # ==========================
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get(
+    "/{user_id}",
+    response_model=UserResponse
+)
 def get_user(
     user_id: int,
     db: Session = Depends(get_db)
@@ -116,7 +121,6 @@ def get_user(
     )
 
     if not user:
-
         raise HTTPException(
             status_code=404,
             detail="User not found"
@@ -129,7 +133,10 @@ def get_user(
 # Update User
 # ==========================
 
-@router.put("/{user_id}", response_model=UserResponse)
+@router.put(
+    "/{user_id}",
+    response_model=UserResponse
+)
 def update_user(
     user_id: int,
     updated_user: UserCreate,
@@ -143,19 +150,17 @@ def update_user(
     )
 
     if not user:
-
         raise HTTPException(
             status_code=404,
             detail="User not found"
         )
 
-
     user.name = updated_user.name
     user.email = updated_user.email
+
     user.password = hash_password(
         updated_user.password
     )
-
 
     db.commit()
     db.refresh(user)
@@ -173,6 +178,7 @@ def delete_user(
     db: Session = Depends(get_db)
 ):
 
+    # Find user
     user = (
         db.query(User)
         .filter(User.id == user_id)
@@ -180,17 +186,72 @@ def delete_user(
     )
 
     if not user:
-
         raise HTTPException(
             status_code=404,
             detail="User not found"
         )
 
+    try:
 
-    db.delete(user)
+        # ==========================
+        # Find User Projects
+        # ==========================
 
-    db.commit()
+        projects = (
+            db.query(Project)
+            .filter(Project.owner_id == user_id)
+            .all()
+        )
 
-    return {
-        "message": "User Deleted Successfully"
-    }
+        # ==========================
+        # Delete Tasks
+        # ==========================
+
+        if projects:
+
+            project_ids = [
+                project.id
+                for project in projects
+            ]
+
+            db.query(Task).filter(
+                Task.project_id.in_(project_ids)
+            ).delete(
+                synchronize_session=False
+            )
+
+            # ==========================
+            # Delete Projects
+            # ==========================
+
+            db.query(Project).filter(
+                Project.id.in_(project_ids)
+            ).delete(
+                synchronize_session=False
+            )
+
+        # ==========================
+        # Delete User
+        # ==========================
+
+        db.delete(user)
+
+        db.commit()
+
+        return {
+            "message": "User Deleted Successfully"
+        }
+
+    except Exception as error:
+
+        db.rollback()
+
+        print(
+            "Delete User Error:",
+            error
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to delete user"
+        )

@@ -1,67 +1,77 @@
+// =========================================================
+// TASKFLOW — MAIN JAVASCRIPT
+// FINAL CLEAN VERSION
+// =========================================================
+
+// =========================================================
+// API CONFIG
+// =========================================================
+
 const API =
     window.location.hostname === "127.0.0.1" ||
     window.location.hostname === "localhost"
         ? "http://127.0.0.1:8000"
         : "https://taskflow-api-ax00.onrender.com";
 
-// =========================
-// Current Selected Project
-// =========================
+
+// =========================================================
+// CURRENT SELECTED PROJECT
+// =========================================================
 
 let currentProjectId = null;
 
-// =========================
-// Get Login Token
-// =========================
+
+// =========================================================
+// GET LOGIN TOKEN
+// =========================================================
 
 function getToken() {
     return localStorage.getItem("token");
 }
 
-// =========================
-// Authorization Headers
-// =========================
+
+// =========================================================
+// AUTHORIZATION HEADERS
+// =========================================================
 
 function getAuthHeaders() {
-
     const token = getToken();
 
     return {
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`
     };
 }
 
-function getJsonHeaders() {
 
+function getJsonHeaders() {
     const token = getToken();
 
     return {
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"
     };
 }
 
-// =========================
-// Check Login
-// =========================
+
+// =========================================================
+// CHECK LOGIN
+// =========================================================
 
 function checkLogin() {
-
     const token = getToken();
 
     if (!token) {
-
         window.location.href = "login.html";
-
         return false;
     }
 
     return true;
 }
 
-// =========================
-// Handle API Response
-// =========================
+
+// =========================================================
+// HANDLE API RESPONSE
+// =========================================================
 
 async function handleResponse(response) {
 
@@ -90,9 +100,10 @@ async function handleResponse(response) {
     return await response.json();
 }
 
-// =========================
-// Elements
-// =========================
+
+// =========================================================
+// ELEMENTS
+// =========================================================
 
 const taskList =
     document.getElementById("taskList");
@@ -103,28 +114,350 @@ const projectSelect =
 const projectInfo =
     document.getElementById("projectInfo");
 
-// =========================
-// Load Projects
-// =========================
 
-async function loadProjects() {
+// =========================================================
+// PROJECT PROGRESS
+// =========================================================
 
-    if (!checkLogin()) return;
+function getProjectProgress(projectId, stats) {
+
+    const projectStats = stats.find(
+        project =>
+            Number(project.project_id) === Number(projectId)
+    );
+
+    if (!projectStats) {
+
+        return {
+            total: 0,
+            completed: 0,
+            pending: 0,
+            progress: 0
+        };
+    }
+
+    return {
+        total: Number(projectStats.total_tasks || 0),
+        completed: Number(projectStats.completed_tasks || 0),
+        pending: Number(projectStats.pending_tasks || 0),
+        progress: Number(projectStats.progress || 0)
+    };
+}
+
+
+// =========================================================
+// LOAD PROJECT PROGRESS
+// =========================================================
+
+async function loadProjectProgress() {
+
+    if (!currentProjectId) {
+        return;
+    }
 
     try {
 
         const response = await fetch(
-            `${API}/projects/`,
+            `${API}/projects/stats/summary`,
             {
                 method: "GET",
                 headers: getAuthHeaders()
             }
         );
 
+        const data =
+            await handleResponse(response);
+
+        if (!data) {
+            return;
+        }
+
+        const progress =
+            getProjectProgress(
+                currentProjectId,
+                data
+            );
+
+        const progressBox =
+            document.getElementById(
+                "projectProgress"
+            );
+
+        if (!progressBox) {
+            return;
+        }
+
+        progressBox.innerHTML = `
+            <div class="project-progress-header">
+
+                <span>Project Progress</span>
+
+                <strong>
+                    ${progress.progress}%
+                </strong>
+
+            </div>
+
+            <div class="progress-bar">
+
+                <div
+                    class="progress-fill"
+                    style="width: ${progress.progress}%"
+                ></div>
+
+            </div>
+
+            <div class="project-progress-info">
+
+                ${progress.completed} completed
+                ·
+                ${progress.pending} pending
+                ·
+                ${progress.total} total
+
+            </div>
+        `;
+
+    } catch (error) {
+
+        console.error(
+            "Project Progress Error:",
+            error
+        );
+    }
+}
+
+
+// =========================================================
+// EDIT PROJECT
+// =========================================================
+
+async function editProject() {
+
+    if (!checkLogin()) {
+        return;
+    }
+
+    if (!currentProjectId) {
+
+        alert(
+            "Please select a project first."
+        );
+
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `${API}/projects/${currentProjectId}`,
+            {
+                method: "GET",
+                headers: getAuthHeaders()
+            }
+        );
+
+        const project =
+            await handleResponse(response);
+
+        if (!project) {
+            return;
+        }
+
+        const newName = prompt(
+            "Edit Project Name:",
+            project.name || ""
+        );
+
+        if (newName === null) {
+            return;
+        }
+
+        if (newName.trim() === "") {
+
+            alert(
+                "Project name cannot be empty."
+            );
+
+            return;
+        }
+
+        const newDescription = prompt(
+            "Edit Project Description:",
+            project.description || ""
+        );
+
+        if (newDescription === null) {
+            return;
+        }
+
+        const updateResponse =
+            await fetch(
+                `${API}/projects/${currentProjectId}`,
+                {
+                    method: "PUT",
+                    headers: getJsonHeaders(),
+
+                    body: JSON.stringify({
+                        name: newName.trim(),
+                        description:
+                            newDescription.trim()
+                    })
+                }
+            );
+
+        const updatedProject =
+            await handleResponse(
+                updateResponse
+            );
+
+        if (!updatedProject) {
+            return;
+        }
+
+        alert(
+            "✏️ Project Updated Successfully"
+        );
+
+        await loadProjects();
+
+        currentProjectId =
+            Number(updatedProject.id);
+
+        if (projectSelect) {
+
+            projectSelect.value =
+                String(updatedProject.id);
+        }
+
+        if (projectInfo) {
+
+            projectInfo.innerText =
+                `Current Project: ${updatedProject.name}`;
+        }
+
+        await loadTasks();
+
+        await loadProjectProgress();
+
+    } catch (error) {
+
+        console.error(
+            "Edit Project Error:",
+            error
+        );
+
+        alert(
+            "Project edit nahi ho paya."
+        );
+    }
+}
+
+
+// =========================================================
+// DELETE PROJECT
+// =========================================================
+
+async function deleteProject() {
+
+    if (!checkLogin()) {
+        return;
+    }
+
+    if (!currentProjectId) {
+
+        alert(
+            "Please select a project first."
+        );
+
+        return;
+    }
+
+    const selectedProjectName =
+        projectSelect.options[
+            projectSelect.selectedIndex
+        ]?.text || "this project";
+
+    const confirmed = confirm(
+        `Delete "${selectedProjectName}"?\n\n` +
+        "This will also delete all tasks inside this project."
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/projects/${currentProjectId}`,
+                {
+                    method: "DELETE",
+                    headers: getAuthHeaders()
+                }
+            );
+
+        const result =
+            await handleResponse(response);
+
+        if (!result) {
+            return;
+        }
+
+        alert(
+            "🗑️ Project Deleted Successfully"
+        );
+
+        currentProjectId = null;
+
+        await loadProjects();
+
+    } catch (error) {
+
+        console.error(
+            "Delete Project Error:",
+            error
+        );
+
+        alert(
+            "Project delete nahi ho paya."
+        );
+    }
+}
+
+
+// =========================================================
+// LOAD PROJECTS
+// =========================================================
+
+async function loadProjects() {
+
+    if (!checkLogin()) {
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/projects/`,
+                {
+                    method: "GET",
+                    headers: getAuthHeaders()
+                }
+            );
+
         const projects =
             await handleResponse(response);
 
-        if (!projects) return;
+        if (!projects) {
+            return;
+        }
+
+        if (!projectSelect) {
+            return;
+        }
 
         projectSelect.innerHTML = "";
 
@@ -136,19 +469,25 @@ async function loadProjects() {
                 </option>
             `;
 
-            projectInfo.innerText =
-                "Please create a project first.";
+            if (projectInfo) {
+
+                projectInfo.innerText =
+                    "Please create a project first.";
+            }
 
             currentProjectId = null;
 
-            taskList.innerHTML = `
-                <li>No Project Selected</li>
-            `;
+            if (taskList) {
+
+                taskList.innerHTML = `
+                    <li>
+                        No Project Selected
+                    </li>
+                `;
+            }
 
             return;
         }
-
-        // Add projects to dropdown
 
         projects.forEach(project => {
 
@@ -161,38 +500,46 @@ async function loadProjects() {
                 project.name;
 
             projectSelect.appendChild(option);
-
         });
 
-        // Select first project automatically
-
         currentProjectId =
-            projects[0].id;
+            Number(projects[0].id);
 
         projectSelect.value =
-            currentProjectId;
+            String(currentProjectId);
 
-        projectInfo.innerText =
-            `Current Project: ${projects[0].name}`;
+        if (projectInfo) {
 
-        // Load tasks
+            projectInfo.innerText =
+                `Current Project: ${projects[0].name}`;
+        }
 
         await loadTasks();
 
+        await loadProjectProgress();
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Load Projects Error:",
+            error
+        );
 
-        alert("Projects load nahi ho paaye.");
+        alert(
+            "Projects load nahi ho paaye."
+        );
     }
 }
 
-// =========================
-// Create Project
-// =========================
+
+// =========================================================
+// CREATE PROJECT
+// =========================================================
 
 const createProjectBtn =
-    document.getElementById("createProjectBtn");
+    document.getElementById(
+        "createProjectBtn"
+    );
 
 if (createProjectBtn) {
 
@@ -200,23 +547,35 @@ if (createProjectBtn) {
         "click",
         async () => {
 
-            if (!checkLogin()) return;
+            if (!checkLogin()) {
+                return;
+            }
+
+            const projectNameElement =
+                document.getElementById(
+                    "projectName"
+                );
+
+            const projectDescriptionElement =
+                document.getElementById(
+                    "projectDescription"
+                );
 
             const name =
-                document
-                    .getElementById("projectName")
-                    .value
-                    .trim();
+                projectNameElement
+                    ? projectNameElement.value.trim()
+                    : "";
 
             const description =
-                document
-                    .getElementById("projectDescription")
-                    .value
-                    .trim();
+                projectDescriptionElement
+                    ? projectDescriptionElement.value.trim()
+                    : "";
 
             if (name === "") {
 
-                alert("Enter Project Name");
+                alert(
+                    "Enter Project Name"
+                );
 
                 return;
             }
@@ -242,25 +601,27 @@ if (createProjectBtn) {
                     );
 
                 const project =
-                    await handleResponse(response);
+                    await handleResponse(
+                        response
+                    );
 
-                if (!project) return;
+                if (!project) {
+                    return;
+                }
 
                 alert(
                     "Project Created Successfully"
                 );
 
-                document
-                    .getElementById("projectName")
-                    .value = "";
+                if (projectNameElement) {
+                    projectNameElement.value = "";
+                }
 
-                document
-                    .getElementById("projectDescription")
-                    .value = "";
+                if (projectDescriptionElement) {
+                    projectDescriptionElement.value = "";
+                }
 
                 await loadProjects();
-
-                // Select newly created project
 
                 if (project.id) {
 
@@ -270,10 +631,15 @@ if (createProjectBtn) {
                     projectSelect.value =
                         String(project.id);
 
-                    projectInfo.innerText =
-                        `Current Project: ${project.name}`;
+                    if (projectInfo) {
+
+                        projectInfo.innerText =
+                            `Current Project: ${project.name}`;
+                    }
 
                     await loadTasks();
+
+                    await loadProjectProgress();
                 }
 
             } catch (error) {
@@ -287,40 +653,52 @@ if (createProjectBtn) {
                     "Project create nahi ho paya."
                 );
             }
-
         }
     );
 }
 
-// =========================
-// Project Change
-// =========================
+
+// =========================================================
+// PROJECT CHANGE
+// =========================================================
 
 if (projectSelect) {
 
     projectSelect.addEventListener(
         "change",
-        function () {
+        async function () {
 
             currentProjectId =
-                parseInt(this.value);
+                Number(this.value);
 
-            const selectedText =
+            const selectedOption =
                 this.options[
                     this.selectedIndex
-                ].text;
+                ];
 
-            projectInfo.innerText =
-                `Current Project: ${selectedText}`;
+            const selectedText =
+                selectedOption
+                    ? selectedOption.text
+                    : "No Project";
 
-            loadTasks();
+            if (projectInfo) {
+
+                projectInfo.innerText =
+                    `Current Project: ${selectedText}`;
+            }
+
+            await loadTasks();
+
+            await loadProjectProgress();
+
         }
     );
 }
 
-// =========================
-// Format Due Date
-// =========================
+
+// =========================================================
+// FORMAT DUE DATE
+// =========================================================
 
 function formatDueDate(date) {
 
@@ -328,9 +706,9 @@ function formatDueDate(date) {
         return "No due date";
     }
 
-    // If backend sends YYYY-MM-DD
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    if (
+        /^\d{4}-\d{2}-\d{2}$/.test(date)
+    ) {
 
         const parts =
             date.split("-");
@@ -341,131 +719,147 @@ function formatDueDate(date) {
     return date;
 }
 
-// =========================
-// Load Tasks
-// =========================
+
+// =========================================================
+// RENDER TASKS
+// =========================================================
+
+function renderTasks(tasks) {
+
+    if (!taskList) {
+        return;
+    }
+
+    taskList.innerHTML = "";
+
+    if (!tasks || tasks.length === 0) {
+
+        taskList.innerHTML = `
+            <li>
+                No Tasks Found in this Project
+            </li>
+        `;
+
+        return;
+    }
+
+    tasks.forEach(task => {
+
+        const li =
+            document.createElement("li");
+
+        li.innerHTML = `
+            <b>
+                ${task.title || "No Title"}
+            </b>
+
+            <span class="task-priority">
+                🎯 Priority :
+                <strong>
+                    ${task.priority || "medium"}
+                </strong>
+            </span>
+
+            <span class="task-due-date">
+                📅 Due Date :
+                <strong>
+                    ${formatDueDate(task.due_date)}
+                </strong>
+            </span>
+
+            <span class="task-status">
+                📌 Status :
+                <strong>
+                    ${task.status || "Pending"}
+                </strong>
+            </span>
+
+            <button
+                class="edit-btn"
+                onclick="editTask(${task.id})"
+            >
+                ✏️ Edit
+            </button>
+
+            <button
+                class="complete-btn"
+                onclick="completeTask(${task.id})"
+            >
+                ✅ Complete
+            </button>
+
+            <button
+                class="delete-btn"
+                onclick="deleteTask(${task.id})"
+            >
+                🗑 Delete
+            </button>
+        `;
+
+        taskList.appendChild(li);
+    });
+}
+
+
+// =========================================================
+// LOAD TASKS
+// =========================================================
 
 async function loadTasks() {
 
-    if (!checkLogin()) return;
+    if (!checkLogin()) {
+        return;
+    }
 
     if (!currentProjectId) {
 
-        taskList.innerHTML = `
-            <li>Please select a project.</li>
-        `;
+        if (taskList) {
+
+            taskList.innerHTML = `
+                <li>
+                    Please select a project.
+                </li>
+            `;
+        }
 
         return;
     }
 
     try {
 
-        const response = await fetch(
-            `${API}/tasks/`,
-            {
-                method: "GET",
-                headers: getAuthHeaders()
-            }
-        );
+        const response =
+            await fetch(
+                `${API}/tasks/`,
+                {
+                    method: "GET",
+                    headers: getAuthHeaders()
+                }
+            );
 
         const allTasks =
             await handleResponse(response);
 
-        if (!allTasks) return;
-
-        // Only selected project's tasks
+        if (!allTasks) {
+            return;
+        }
 
         const tasks =
             Array.isArray(allTasks)
                 ? allTasks.filter(
                     task =>
-                        Number(task.project_id)
-                        ===
+                        Number(task.project_id) ===
                         Number(currentProjectId)
                 )
                 : [];
 
-        taskList.innerHTML = "";
-
-        if (tasks.length === 0) {
-
-            taskList.innerHTML = `
-                <li>
-                    No Tasks Found in this Project
-                </li>
-            `;
-
-            return;
-        }
-
-        tasks.forEach(task => {
-
-            const li =
-                document.createElement("li");
-
-            li.innerHTML = `
-
-                <b>
-                    ${task.title || "No Title"}
-                </b>
-
-                <span class="task-priority">
-
-                    🎯 Priority :
-                    <strong>
-                        ${task.priority || "medium"}
-                    </strong>
-
-                </span>
-
-                <span class="task-due-date">
-
-                    📅 Due Date :
-                    <strong>
-                        ${formatDueDate(task.due_date)}
-                    </strong>
-
-                </span>
-
-                <span class="task-status">
-
-                    📌 Status :
-                    <strong>
-                        ${task.status || "Pending"}
-                    </strong>
-
-                </span>
-
-                <button
-                    class="edit-btn"
-                    onclick="editTask(${task.id})"
-                >
-                    ✏️ Edit
-                </button>
-
-                <button
-                    class="complete-btn"
-                    onclick="completeTask(${task.id})"
-                >
-                    ✅ Complete
-                </button>
-
-                <button
-                    class="delete-btn"
-                    onclick="deleteTask(${task.id})"
-                >
-                    🗑 Delete
-                </button>
-
-            `;
-
-            taskList.appendChild(li);
-
-        });
+        renderTasks(tasks);
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Load Tasks Error:",
+            error
+        );
 
         alert(
             "Server se connection nahi ho raha."
@@ -473,12 +867,15 @@ async function loadTasks() {
     }
 }
 
-// =========================
-// Add New Task
-// =========================
+
+// =========================================================
+// ADD NEW TASK
+// =========================================================
 
 const addTaskBtn =
-    document.getElementById("addTaskBtn");
+    document.getElementById(
+        "addTaskBtn"
+    );
 
 if (addTaskBtn) {
 
@@ -486,7 +883,9 @@ if (addTaskBtn) {
         "click",
         async () => {
 
-            if (!checkLogin()) return;
+            if (!checkLogin()) {
+                return;
+            }
 
             if (!currentProjectId) {
 
@@ -497,23 +896,30 @@ if (addTaskBtn) {
                 return;
             }
 
-            const title =
-                document
-                    .getElementById("taskTitle")
-                    .value
-                    .trim();
+            const taskTitleElement =
+                document.getElementById(
+                    "taskTitle"
+                );
 
-            const priority =
-                document
-                    .getElementById("taskPriority")
-                    .value;
-
-            // Optional due date input
+            const taskPriorityElement =
+                document.getElementById(
+                    "taskPriority"
+                );
 
             const dueDateElement =
                 document.getElementById(
                     "taskDueDate"
                 );
+
+            const title =
+                taskTitleElement
+                    ? taskTitleElement.value.trim()
+                    : "";
+
+            const priority =
+                taskPriorityElement
+                    ? taskPriorityElement.value
+                    : "medium";
 
             const dueDate =
                 dueDateElement
@@ -522,7 +928,9 @@ if (addTaskBtn) {
 
             if (title === "") {
 
-                alert("Enter Task Title");
+                alert(
+                    "Enter Task Title"
+                );
 
                 return;
             }
@@ -540,7 +948,6 @@ if (addTaskBtn) {
 
                             body:
                                 JSON.stringify({
-
                                     title: title,
 
                                     description: "",
@@ -553,19 +960,22 @@ if (addTaskBtn) {
 
                                     project_id:
                                         currentProjectId
-
                                 })
                         }
                     );
 
                 const task =
-                    await handleResponse(response);
+                    await handleResponse(
+                        response
+                    );
 
-                if (!task) return;
+                if (!task) {
+                    return;
+                }
 
-                document
-                    .getElementById("taskTitle")
-                    .value = "";
+                if (taskTitleElement) {
+                    taskTitleElement.value = "";
+                }
 
                 if (dueDateElement) {
                     dueDateElement.value = "";
@@ -577,30 +987,35 @@ if (addTaskBtn) {
 
                 await loadTasks();
 
+                await loadProjectProgress();
+
             } catch (error) {
 
-                console.error(error);
+                console.error(
+                    "Add Task Error:",
+                    error
+                );
 
                 alert(
                     "Task add nahi ho paya."
                 );
             }
-
         }
     );
 }
 
-// =========================
+
+// =========================================================
 // EDIT TASK
-// =========================
+// =========================================================
 
 async function editTask(taskId) {
 
-    if (!checkLogin()) return;
+    if (!checkLogin()) {
+        return;
+    }
 
     try {
-
-        // Get current task
 
         const response =
             await fetch(
@@ -612,11 +1027,13 @@ async function editTask(taskId) {
             );
 
         const task =
-            await handleResponse(response);
+            await handleResponse(
+                response
+            );
 
-        if (!task) return;
-
-        // New title
+        if (!task) {
+            return;
+        }
 
         const newTitle =
             prompt(
@@ -636,8 +1053,6 @@ async function editTask(taskId) {
 
             return;
         }
-
-        // New priority
 
         const newPriority =
             prompt(
@@ -665,8 +1080,6 @@ async function editTask(taskId) {
             return;
         }
 
-        // New due date
-
         const newDueDate =
             prompt(
                 "Edit Due Date (YYYY-MM-DD):",
@@ -676,8 +1089,6 @@ async function editTask(taskId) {
         if (newDueDate === null) {
             return;
         }
-
-        // Update task
 
         const updateResponse =
             await fetch(
@@ -708,7 +1119,6 @@ async function editTask(taskId) {
 
                             project_id:
                                 task.project_id
-
                         })
                 }
             );
@@ -718,7 +1128,9 @@ async function editTask(taskId) {
                 updateResponse
             );
 
-        if (!updatedTask) return;
+        if (!updatedTask) {
+            return;
+        }
 
         alert(
             "✏️ Task Updated Successfully"
@@ -726,9 +1138,14 @@ async function editTask(taskId) {
 
         await loadTasks();
 
+        await loadProjectProgress();
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Edit Task Error:",
+            error
+        );
 
         alert(
             "Task modify nahi ho paya."
@@ -736,13 +1153,16 @@ async function editTask(taskId) {
     }
 }
 
-// =========================
-// Complete Task
-// =========================
+
+// =========================================================
+// COMPLETE TASK
+// =========================================================
 
 async function completeTask(taskId) {
 
-    if (!checkLogin()) return;
+    if (!checkLogin()) {
+        return;
+    }
 
     try {
 
@@ -751,15 +1171,18 @@ async function completeTask(taskId) {
                 `${API}/tasks/${taskId}`,
                 {
                     method: "GET",
-                    headers:
-                        getAuthHeaders()
+                    headers: getAuthHeaders()
                 }
             );
 
         const task =
-            await handleResponse(response);
+            await handleResponse(
+                response
+            );
 
-        if (!task) return;
+        if (!task) {
+            return;
+        }
 
         const updateResponse =
             await fetch(
@@ -790,7 +1213,6 @@ async function completeTask(taskId) {
 
                             project_id:
                                 task.project_id
-
                         })
                 }
             );
@@ -800,13 +1222,20 @@ async function completeTask(taskId) {
                 updateResponse
             );
 
-        if (!updatedTask) return;
+        if (!updatedTask) {
+            return;
+        }
 
         await loadTasks();
 
+        await loadProjectProgress();
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Complete Task Error:",
+            error
+        );
 
         alert(
             "Task update nahi ho paya."
@@ -814,19 +1243,20 @@ async function completeTask(taskId) {
     }
 }
 
-// =========================
-// Delete Task
-// =========================
+
+// =========================================================
+// DELETE TASK
+// =========================================================
 
 async function deleteTask(taskId) {
 
-    if (!checkLogin()) return;
+    if (!checkLogin()) {
+        return;
+    }
 
-    if (
-        !confirm(
-            "Delete this task?"
-        )
-    ) return;
+    if (!confirm("Delete this task?")) {
+        return;
+    }
 
     try {
 
@@ -835,9 +1265,7 @@ async function deleteTask(taskId) {
                 `${API}/tasks/${taskId}`,
                 {
                     method: "DELETE",
-
-                    headers:
-                        getAuthHeaders()
+                    headers: getAuthHeaders()
                 }
             );
 
@@ -846,7 +1274,9 @@ async function deleteTask(taskId) {
                 response
             );
 
-        if (!result) return;
+        if (!result) {
+            return;
+        }
 
         alert(
             "🗑 Task Deleted Successfully"
@@ -854,9 +1284,14 @@ async function deleteTask(taskId) {
 
         await loadTasks();
 
+        await loadProjectProgress();
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Delete Task Error:",
+            error
+        );
 
         alert(
             "Task delete nahi ho paya."
@@ -864,12 +1299,15 @@ async function deleteTask(taskId) {
     }
 }
 
-// =========================
-// Statistics
-// =========================
+
+// =========================================================
+// STATISTICS — PREMIUM VERSION
+// =========================================================
 
 const statsBtn =
-    document.getElementById("statsBtn");
+    document.getElementById(
+        "statsBtn"
+    );
 
 if (statsBtn) {
 
@@ -877,103 +1315,9 @@ if (statsBtn) {
         "click",
         async () => {
 
-            if (!checkLogin()) return;
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API}/projects/stats/summary`,
-                        {
-                            method: "GET",
-
-                            headers:
-                                getAuthHeaders()
-                        }
-                    );
-
-                const data =
-                    await handleResponse(
-                        response
-                    );
-
-                if (!data) return;
-
-                const projectStats =
-                    data.find(
-                        project =>
-                            Number(
-                                project.project_id
-                            )
-                            ===
-                            Number(
-                                currentProjectId
-                            )
-                    );
-
-                if (!projectStats) {
-
-                    document
-                        .getElementById("stats")
-                        .innerHTML = `
-                            No statistics available.
-                        `;
-
-                    return;
-                }
-
-                document
-                    .getElementById("stats")
-                    .innerHTML = `
-
-                        📋 Total Tasks :
-                        <b>
-                            ${projectStats.total_tasks}
-                        </b>
-
-                        <br><br>
-
-                        ✅ Completed :
-                        <b>
-                            ${projectStats.completed_tasks}
-                        </b>
-
-                        <br><br>
-
-                        ⏳ Pending :
-                        <b>
-                            ${projectStats.pending_tasks}
-                        </b>
-
-                    `;
-
-            } catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Statistics load nahi ho payi."
-                );
+            if (!checkLogin()) {
+                return;
             }
-
-        }
-    );
-}
-
-// =========================
-// AI Quick Add
-// =========================
-
-const aiBtn =
-    document.getElementById("aiBtn");
-
-if (aiBtn) {
-
-    aiBtn.addEventListener(
-        "click",
-        async () => {
-
-            if (!checkLogin()) return;
 
             if (!currentProjectId) {
 
@@ -984,11 +1328,166 @@ if (aiBtn) {
                 return;
             }
 
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/projects/stats/summary`,
+                        {
+                            method: "GET",
+                            headers:
+                                getAuthHeaders()
+                        }
+                    );
+
+                const data =
+                    await handleResponse(
+                        response
+                    );
+
+                if (!data) {
+                    return;
+                }
+
+                const projectStats =
+                    data.find(
+                        project =>
+                            Number(
+                                project.project_id
+                            ) ===
+                            Number(
+                                currentProjectId
+                            )
+                    );
+
+                const statsElement =
+                    document.getElementById(
+                        "stats"
+                    );
+
+                if (!statsElement) {
+                    return;
+                }
+
+                // No statistics
+                if (!projectStats) {
+
+                    statsElement.innerHTML = `
+                        <div class="stat-box stat-total">
+                            <span>Total Tasks</span>
+                            <strong>0</strong>
+                        </div>
+
+                        <div class="stat-box stat-completed">
+                            <span>Completed</span>
+                            <strong>0</strong>
+                        </div>
+
+                        <div class="stat-box stat-pending">
+                            <span>Pending</span>
+                            <strong>0</strong>
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                const total =
+                    Number(
+                        projectStats.total_tasks || 0
+                    );
+
+                const completed =
+                    Number(
+                        projectStats.completed_tasks || 0
+                    );
+
+                const pending =
+                    Number(
+                        projectStats.pending_tasks || 0
+                    );
+
+                statsElement.innerHTML = `
+                    <div class="stat-box stat-total">
+                        <span>Total Tasks</span>
+
+                        <strong>
+                            ${total}
+                        </strong>
+                    </div>
+
+                    <div class="stat-box stat-completed">
+                        <span>Completed</span>
+
+                        <strong>
+                            ${completed}
+                        </strong>
+                    </div>
+
+                    <div class="stat-box stat-pending">
+                        <span>Pending</span>
+
+                        <strong>
+                            ${pending}
+                        </strong>
+                    </div>
+                `;
+
+            } catch (error) {
+
+                console.error(
+                    "Statistics Error:",
+                    error
+                );
+
+                alert(
+                    "Statistics load nahi ho payi."
+                );
+            }
+        }
+    );
+}
+
+
+// =========================================================
+// AI QUICK ADD
+// =========================================================
+
+const aiBtn =
+    document.getElementById(
+        "aiBtn"
+    );
+
+if (aiBtn) {
+
+    aiBtn.addEventListener(
+        "click",
+        async () => {
+
+            if (!checkLogin()) {
+                return;
+            }
+
+            if (!currentProjectId) {
+
+                alert(
+                    "Please select a project first."
+                );
+
+                return;
+            }
+
+            const aiInput =
+                document.getElementById(
+                    "aiText"
+                );
+
+            if (!aiInput) {
+                return;
+            }
+
             const text =
-                document
-                    .getElementById("aiText")
-                    .value
-                    .trim();
+                aiInput.value.trim();
 
             if (text === "") {
 
@@ -1012,13 +1511,11 @@ if (aiBtn) {
 
                             body:
                                 JSON.stringify({
-
                                     description:
                                         text,
 
                                     project_id:
                                         currentProjectId
-
                                 })
                         }
                     );
@@ -1028,38 +1525,45 @@ if (aiBtn) {
                         response
                     );
 
-                if (!data) return;
+                if (!data) {
+                    return;
+                }
 
                 alert(
-                    "🤖 AI Task Created: "
-                    + data.title
+                    "🤖 AI Task Created: " +
+                    data.title
                 );
 
-                document
-                    .getElementById("aiText")
-                    .value = "";
+                aiInput.value = "";
 
                 await loadTasks();
 
+                await loadProjectProgress();
+
             } catch (error) {
 
-                console.error(error);
+                console.error(
+                    "AI Quick Add Error:",
+                    error
+                );
 
                 alert(
                     "AI Quick Add failed."
                 );
             }
-
         }
     );
 }
 
-// =========================
-// Search Task
-// =========================
+
+// =========================================================
+// SEARCH TASK
+// =========================================================
 
 const searchBtn =
-    document.getElementById("searchBtn");
+    document.getElementById(
+        "searchBtn"
+    );
 
 if (searchBtn) {
 
@@ -1067,7 +1571,9 @@ if (searchBtn) {
         "click",
         async () => {
 
-            if (!checkLogin()) return;
+            if (!checkLogin()) {
+                return;
+            }
 
             if (!currentProjectId) {
 
@@ -1078,11 +1584,17 @@ if (searchBtn) {
                 return;
             }
 
+            const searchInput =
+                document.getElementById(
+                    "searchText"
+                );
+
+            if (!searchInput) {
+                return;
+            }
+
             const text =
-                document
-                    .getElementById("searchText")
-                    .value
-                    .trim();
+                searchInput.value.trim();
 
             if (text === "") {
 
@@ -1098,13 +1610,10 @@ if (searchBtn) {
                         `${API}/tasks/search/?title=${encodeURIComponent(text)}`,
                         {
                             method: "GET",
-
                             headers:
                                 getAuthHeaders()
                         }
                     );
-
-                // Task not found
 
                 if (response.status === 404) {
 
@@ -1122,10 +1631,9 @@ if (searchBtn) {
                         response
                     );
 
-                if (!result) return;
-
-                // Backend can return
-                // object or array
+                if (!result) {
+                    return;
+                }
 
                 const allTasks =
                     Array.isArray(result)
@@ -1137,14 +1645,11 @@ if (searchBtn) {
                         task =>
                             Number(
                                 task.project_id
-                            )
-                            ===
+                            ) ===
                             Number(
                                 currentProjectId
                             )
                     );
-
-                taskList.innerHTML = "";
 
                 if (tasks.length === 0) {
 
@@ -1157,87 +1662,27 @@ if (searchBtn) {
                     return;
                 }
 
-                tasks.forEach(task => {
-
-                    const li =
-                        document.createElement("li");
-
-                    li.innerHTML = `
-
-                        <b>
-                            ${task.title || "No Title"}
-                        </b>
-
-                        <span class="task-priority">
-
-                            🎯 Priority :
-                            <strong>
-                                ${task.priority || "medium"}
-                            </strong>
-
-                        </span>
-
-                        <span class="task-due-date">
-
-                            📅 Due Date :
-                            <strong>
-                                ${formatDueDate(task.due_date)}
-                            </strong>
-
-                        </span>
-
-                        <span class="task-status">
-
-                            📌 Status :
-                            <strong>
-                                ${task.status || "Pending"}
-                            </strong>
-
-                        </span>
-
-                        <button
-                            class="edit-btn"
-                            onclick="editTask(${task.id})"
-                        >
-                            ✏️ Edit
-                        </button>
-
-                        <button
-                            class="complete-btn"
-                            onclick="completeTask(${task.id})"
-                        >
-                            ✅ Complete
-                        </button>
-
-                        <button
-                            class="delete-btn"
-                            onclick="deleteTask(${task.id})"
-                        >
-                            🗑 Delete
-                        </button>
-
-                    `;
-
-                    taskList.appendChild(li);
-
-                });
+                renderTasks(tasks);
 
             } catch (error) {
 
-                console.error(error);
+                console.error(
+                    "Search Error:",
+                    error
+                );
 
                 alert(
                     "Search failed."
                 );
             }
-
         }
     );
 }
 
-// =========================
-// Show All Button
-// =========================
+
+// =========================================================
+// SHOW ALL BUTTON
+// =========================================================
 
 const showAllBtn =
     document.getElementById(
@@ -1248,30 +1693,26 @@ if (showAllBtn) {
 
     showAllBtn.addEventListener(
         "click",
-        () => {
+        async () => {
 
-            loadTasks();
+            const searchInput =
+                document.getElementById(
+                    "searchText"
+                );
 
+            if (searchInput) {
+                searchInput.value = "";
+            }
+
+            await loadTasks();
         }
     );
 }
 
-// =========================
-// Initial Load
-// =========================
 
-window.addEventListener(
-    "load",
-    () => {
-
-        loadProjects();
-
-    }
-);
-
-// =========================
-// Logout
-// =========================
+// =========================================================
+// LOGOUT
+// =========================================================
 
 const logoutBtn =
     document.getElementById(
@@ -1290,7 +1731,185 @@ if (logoutBtn) {
 
             window.location.href =
                 "login.html";
-
         }
     );
 }
+
+
+// =========================================================
+// INITIAL LOAD
+// =========================================================
+
+window.addEventListener(
+    "load",
+    async () => {
+
+        if (!checkLogin()) {
+            return;
+        }
+
+        await loadProjects();
+    }
+);
+
+
+// =========================================================
+// HERO SLIDER
+// =========================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        const slides =
+            document.querySelectorAll(
+                ".hero-slide"
+            );
+
+        const dots =
+            document.querySelectorAll(
+                ".hero-dot"
+            );
+
+        const prevBtn =
+            document.querySelector(
+                ".hero-prev"
+            );
+
+        const nextBtn =
+            document.querySelector(
+                ".hero-next"
+            );
+
+        if (!slides.length) {
+            return;
+        }
+
+        let currentSlide = 0;
+
+        let sliderTimer;
+
+
+        function showSlide(index) {
+
+            if (index >= slides.length) {
+
+                currentSlide = 0;
+
+            } else if (index < 0) {
+
+                currentSlide =
+                    slides.length - 1;
+
+            } else {
+
+                currentSlide = index;
+            }
+
+
+            slides.forEach(
+                (slide, i) => {
+
+                    slide.classList.toggle(
+                        "active",
+                        i === currentSlide
+                    );
+                }
+            );
+
+
+            dots.forEach(
+                (dot, i) => {
+
+                    dot.classList.toggle(
+                        "active",
+                        i === currentSlide
+                    );
+                }
+            );
+        }
+
+
+        function nextSlide() {
+
+            showSlide(
+                currentSlide + 1
+            );
+        }
+
+
+        function previousSlide() {
+
+            showSlide(
+                currentSlide - 1
+            );
+        }
+
+
+        function startSlider() {
+
+            clearInterval(
+                sliderTimer
+            );
+
+            sliderTimer =
+                setInterval(
+                    () => {
+
+                        nextSlide();
+
+                    },
+                    5000
+                );
+        }
+
+
+        if (nextBtn) {
+
+            nextBtn.addEventListener(
+                "click",
+                () => {
+
+                    nextSlide();
+
+                    startSlider();
+                }
+            );
+        }
+
+
+        if (prevBtn) {
+
+            prevBtn.addEventListener(
+                "click",
+                () => {
+
+                    previousSlide();
+
+                    startSlider();
+                }
+            );
+        }
+
+
+        dots.forEach(
+            (dot, index) => {
+
+                dot.addEventListener(
+                    "click",
+                    () => {
+
+                        showSlide(index);
+
+                        startSlider();
+                    }
+                );
+            }
+        );
+
+
+        showSlide(0);
+
+        startSlider();
+    }
+);
