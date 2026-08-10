@@ -1,3 +1,4 @@
+
 from schemas.quick_add import QuickAddRequest
 from ai_parser import mock_ai_parser
 
@@ -63,7 +64,7 @@ def get_tasks(
                 "id": task.id,
                 "title": task.title,
                 "description": task.description,
-                "priority": priority_rank[task.priority],
+                "priority": priority_rank.get(task.priority, 2),
                 "due_date": task.due_date,
                 "status": task.status,
                 "project_id": task.project_id
@@ -106,6 +107,16 @@ def search_task(
     )
 
     # ----------------------------------
+    # Empty task check
+    # ----------------------------------
+
+    if not tasks:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    # ----------------------------------
     # Build task index
     # ----------------------------------
 
@@ -126,7 +137,7 @@ def search_task(
 
     if algo == "binary":
 
-        # Sort using custom insertion sort
+        # Binary search requires sorted data
         insertion_sort(task_index, "title")
 
         index = binary_search(
@@ -170,10 +181,14 @@ def search_task(
         )
 
     # ----------------------------------
-    # Get Matching Task
+    # Get Matching Task ID
     # ----------------------------------
 
     task_id = task_index[index]["id"]
+
+    # ----------------------------------
+    # Get Actual Task
+    # ----------------------------------
 
     task = (
         db.query(Task)
@@ -199,12 +214,20 @@ def search_task(
 # Create Task
 # ======================================
 
-@router.post("/", response_model=TaskResponse, status_code=201)
+@router.post(
+    "/",
+    response_model=TaskResponse,
+    status_code=201
+)
 def create_task(
     task: TaskCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+
+    # ----------------------------------
+    # Verify Project Ownership
+    # ----------------------------------
 
     project = (
         db.query(Project)
@@ -221,6 +244,10 @@ def create_task(
             status_code=404,
             detail="Project not found"
         )
+
+    # ----------------------------------
+    # Create Task
+    # ----------------------------------
 
     new_task = Task(
         title=task.title,
@@ -253,6 +280,10 @@ def quick_add_task(
     current_user: User = Depends(get_current_user)
 ):
 
+    # ----------------------------------
+    # Verify Project Ownership
+    # ----------------------------------
+
     project = (
         db.query(Project)
         .filter(
@@ -269,8 +300,17 @@ def quick_add_task(
             detail="Project not found"
         )
 
-    # Run deterministic mock AI parser
-    parsed = mock_ai_parser(request.description)
+    # ----------------------------------
+    # Run Rule-Based AI Parser
+    # ----------------------------------
+
+    parsed = mock_ai_parser(
+        request.description
+    )
+
+    # ----------------------------------
+    # Create Task from Parsed Data
+    # ----------------------------------
 
     task = Task(
         title=parsed["title"],
@@ -292,7 +332,10 @@ def quick_add_task(
 # Get Single Task
 # ======================================
 
-@router.get("/{task_id}", response_model=TaskResponse)
+@router.get(
+    "/{task_id}",
+    response_model=TaskResponse
+)
 def get_task(
     task_id: int,
     db: Session = Depends(get_db),
@@ -323,13 +366,20 @@ def get_task(
 # Update Task
 # ======================================
 
-@router.put("/{task_id}", response_model=TaskResponse)
+@router.put(
+    "/{task_id}",
+    response_model=TaskResponse
+)
 def update_task(
     task_id: int,
     updated_task: TaskCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+
+    # ----------------------------------
+    # Find Task
+    # ----------------------------------
 
     task = (
         db.query(Task)
@@ -348,11 +398,36 @@ def update_task(
             detail="Task not found"
         )
 
+    # ----------------------------------
+    # Verify New Project Ownership
+    # ----------------------------------
+
+    project = (
+        db.query(Project)
+        .filter(
+            Project.id == updated_task.project_id,
+            Project.owner_id == current_user.id
+        )
+        .first()
+    )
+
+    if not project:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found"
+        )
+
+    # ----------------------------------
+    # Update Task
+    # ----------------------------------
+
     task.title = updated_task.title
     task.description = updated_task.description
     task.priority = updated_task.priority
     task.due_date = updated_task.due_date
     task.status = updated_task.status
+    task.project_id = updated_task.project_id
 
     db.commit()
     db.refresh(task)
@@ -364,12 +439,18 @@ def update_task(
 # Delete Task
 # ======================================
 
-@router.delete("/{task_id}")
+@router.delete(
+    "/{task_id}"
+)
 def delete_task(
     task_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+
+    # ----------------------------------
+    # Find Task
+    # ----------------------------------
 
     task = (
         db.query(Task)
@@ -387,6 +468,10 @@ def delete_task(
             status_code=404,
             detail="Task not found"
         )
+
+    # ----------------------------------
+    # Delete Task
+    # ----------------------------------
 
     db.delete(task)
     db.commit()

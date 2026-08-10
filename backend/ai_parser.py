@@ -1,25 +1,46 @@
 import re
 
+SYSTEM_PROMPT = """
+You are TaskFlow's task parsing assistant.
+Convert the user's task description into a structured task with:
+
+- title
+- priority
+- due_date
+
+Priority must be low, medium, or high.
+Extract recognized due-date phrases exactly as specified.
+Do not invent information.
+""".strip()
+
+
+def build_prompt(description: str):
+    return [
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT
+        },
+        {
+            "role": "user",
+            "content": description
+        }
+    ]
+
 
 def mock_ai_parser(description: str):
     original = description
     text = description.lower()
 
-    # -------------------------
     # Priority
-    # -------------------------
-    if "urgent" in text or "asap" in text:
+    if "urgent" in text or "asap" in text or "high priority" in text:
         priority = "high"
     elif "whenever" in text or "low priority" in text:
         priority = "low"
     else:
         priority = "medium"
 
-    # -------------------------
-    # Due Date
-    # Exact order required
-    # -------------------------
-    due = None
+    # Due date
+    due_date = None
 
     date_keywords = [
         "today",
@@ -43,13 +64,10 @@ def mock_ai_parser(description: str):
 
     for word in date_keywords:
         if word in text:
-            due = word
+            due_date = word
             break
 
-    # -------------------------
-    # Remove priority keywords
-    # Remove EVERY occurrence
-    # -------------------------
+    # Remove priority words
     title = original
 
     remove_words = [
@@ -57,6 +75,7 @@ def mock_ai_parser(description: str):
         "asap",
         "whenever",
         "low priority",
+        "high priority",
     ]
 
     for word in remove_words:
@@ -67,22 +86,18 @@ def mock_ai_parser(description: str):
             flags=re.IGNORECASE
         )
 
-    # -------------------------
-    # Remove EVERY occurrence
-    # of matched due-date phrase
-    # -------------------------
-    if due:
+    # Remove due date
+    if due_date:
         title = re.sub(
-            re.escape(due),
+            re.escape(due_date),
             "",
             title,
             flags=re.IGNORECASE
         )
 
-    # -------------------------
     # Clean title
-    # -------------------------
-    title = title.strip()
+    title = re.sub(r"\s+", " ", title).strip()
+    title = title.strip(" ,.-")
 
     if not title:
         title = "Untitled task"
@@ -90,5 +105,5 @@ def mock_ai_parser(description: str):
     return {
         "title": title,
         "priority": priority,
-        "due_date": due
+        "due_date": due_date
     }
