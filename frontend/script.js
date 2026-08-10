@@ -1,4 +1,8 @@
-const API = "https://taskflow-api-ax00.onrender.com";
+const API =
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "localhost"
+        ? "http://127.0.0.1:8000"
+        : "https://taskflow-api-ax00.onrender.com";
 
 // =========================
 // Current Selected Project

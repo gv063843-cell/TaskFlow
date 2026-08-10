@@ -22,6 +22,10 @@ from models.task import Task
 Base.metadata.create_all(bind=engine)
 
 
+# ==========================================
+# FastAPI Application
+# ==========================================
+
 app = FastAPI(
     title="TaskFlow API",
     version="1.0.0",
@@ -61,27 +65,16 @@ async def request_timing_middleware(
 
 app.add_middleware(
     CORSMiddleware,
-
     allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
         "https://wonderful-licorice-7b4921.netlify.app"
     ],
-
     allow_credentials=True,
-
-    allow_methods=[
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE",
-        "OPTIONS"
-    ],
-
-    allow_headers=[
-        "Authorization",
-        "Content-Type"
-    ],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
