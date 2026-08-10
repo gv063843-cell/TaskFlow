@@ -1,31 +1,35 @@
 # TaskFlow — Full-Stack AI-Assisted Task Management Platform
 
-TaskFlow is a full-stack task and project management application built with FastAPI, SQLAlchemy, SQLite, HTML, CSS and JavaScript.
+TaskFlow is a full-stack task and project management application built with **FastAPI, SQLAlchemy, SQLite/PostgreSQL, HTML, CSS and JavaScript**.
 
-The application allows users to create projects and tasks, manage tasks through CRUD operations, search and sort tasks using custom algorithms, and create tasks using an AI-assisted rule-based quick-add parser.
+The application allows users to create projects and tasks, manage tasks through CRUD operations, search and sort tasks using custom algorithms, view task statistics, and create structured tasks from natural-language descriptions using an AI-assisted rule-based Quick Add parser.
 
 ---
 
 ## Features
 
-- User registration and login
-- Project creation and listing
-- Task creation, listing, updating and deletion
-- Task priority management
-- Task due-date support
-- Task statistics
-- Custom insertion sort
-- Custom binary search
-- Custom linear search
-- Algorithm comparison benchmarks
-- AI-assisted Quick Add
-- LocalStorage task caching
-- Responsive frontend dashboard
-- FastAPI request timing middleware
-- CORS configuration
-- SQLite for local development
-- PostgreSQL for production deployment
-- SQLAlchemy ORM
+* User registration and login
+* JWT-based authentication
+* Project creation and listing
+* Task creation, listing, updating and deletion
+* Project-wise task management
+* Task priority management
+* Task due-date support
+* Task status management
+* Task statistics
+* Custom insertion sort
+* Custom binary search
+* Custom linear search
+* Algorithm comparison benchmarks
+* AI-assisted Quick Add
+* Deterministic mock AI parser
+* LocalStorage task caching
+* Responsive frontend dashboard
+* FastAPI request-timing middleware
+* CORS configuration
+* SQLite for local development
+* PostgreSQL support for production deployment
+* Swagger/OpenAPI documentation
 
 ---
 
@@ -33,21 +37,22 @@ The application allows users to create projects and tasks, manage tasks through 
 
 ## Backend
 
-- Python
-- FastAPI
-- SQLAlchemy
-- Pydantic
-- SQLite
-- PostgreSQL
-- Uvicorn
+* Python
+* FastAPI
+* SQLAlchemy
+* Pydantic
+* Uvicorn
+* SQLite
+* PostgreSQL
+* JWT Authentication
 
 ## Frontend
 
-- HTML5
-- CSS3
-- JavaScript
-- Fetch API
-- LocalStorage
+* HTML5
+* CSS3
+* JavaScript
+* Fetch API
+* LocalStorage
 
 ---
 
@@ -71,156 +76,127 @@ TaskFlow/
 │   │
 │   ├── routers/
 │   │   ├── auth.py
-│   │   ├── user.py
-│   │   ├── project.py
-│   │   └── task.py
-│   │
-│   ├── schemas/
-│   │   ├── auth.py
-│   │   ├── user.py
 │   │   ├── project.py
 │   │   ├── task.py
+│   │   └── ...
+│   │
+│   ├── schemas/
+│   │   ├── task.py
+│   │   ├── project.py
 │   │   └── quick_add.py
 │   │
 │   ├── ai_parser.py
-│   ├── auth.py
 │   ├── database.py
 │   ├── dependencies.py
 │   ├── main.py
-│   ├── security.py
-│   └── taskflow.db
+│   └── requirements.txt
 │
 ├── frontend/
 │   ├── index.html
 │   ├── login.html
-│   ├── login.js
 │   ├── register.html
-│   ├── register.js
 │   ├── script.js
 │   └── style.css
 │
-├── requirements.txt
-├── README.md
-└── .gitignore
+└── README.md
+```
 
 ---
 
 # Environment Setup
 
-## 1. Clone the Repository
+Clone the repository:
 
 ```bash
 git clone https://github.com/gv063843-cell/TaskFlow.git
 cd TaskFlow
 ```
 
-## 2. Create Virtual Environment
+Create a virtual environment:
 
-Windows PowerShell:
+### Windows
 
 ```powershell
 python -m venv venv
+```
+
+Activate it:
+
+```powershell
 .\venv\Scripts\Activate.ps1
 ```
 
-## 3. Install Dependencies
+Install dependencies:
 
-```bash
-pip install -r requirements.txt
+```powershell
+python -m pip install -r requirements.txt
 ```
 
 ---
 
-# Running the App
+# Running the Backend Locally
 
-## Start the Backend
-
-From the `TaskFlow` root directory:
+Move into the backend directory:
 
 ```powershell
 cd backend
-uvicorn main:app --reload
 ```
 
-The API will run at:
+Run FastAPI with Uvicorn:
+
+```powershell
+python -m uvicorn main:app --reload
+```
+
+The local API will be available at:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-FastAPI Swagger documentation:
+Swagger documentation:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-The backend uses PostgreSQL when the `DATABASE_URL` environment variable is configured. If it is not configured, the application falls back to SQLite for local development.
-
 ---
 
 # API Endpoints
 
-All protected endpoints require a valid JWT access token in the request header:
-
-```text
-Authorization: Bearer <access_token>
-```
-
 ## Authentication
 
-### POST `/auth/login`
-
-Logs in an existing user and returns a JWT access token.
-
-Example request:
+### Register
 
 ```text
-username=user@example.com
-password=yourpassword
+POST /auth/register
 ```
 
-Example response:
+Creates a new user account.
 
-```json
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIs...",
-  "token_type": "bearer"
-}
+### Login
+
+```text
+POST /auth/login
 ```
 
----
+Authenticates a user and returns an access token.
 
-# User Endpoints
+The token is used as:
 
-### POST `/users/`
-
-Creates a new user.
-
-Example request:
-
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-```
-
-Example response:
-
-```json
-{
-  "id": 1,
-  "email": "user@example.com"
-}
+```text
+Authorization: Bearer <token>
 ```
 
 ---
 
-# Project Endpoints
+# Projects
 
-### POST `/projects/`
+## Create Project
 
-Creates a project for the authenticated user.
+```text
+POST /projects/
+```
 
 Example request:
 
@@ -238,82 +214,36 @@ Example response:
   "id": 1,
   "name": "TaskFlow API",
   "description": "My First Project",
-  "owner_id": 1
+  "owner_id": 4
 }
 ```
 
-### GET `/projects/`
-
-Returns all projects belonging to the authenticated user.
-
-Example response:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "TaskFlow API",
-    "description": "My First Project",
-    "owner_id": 1
-  }
-]
-```
-
-### GET `/projects/{project_id}`
-
-Returns a single project.
-
-Example:
+## List Projects
 
 ```text
-GET /projects/1
+GET /projects/
 ```
 
-Example response:
-
-```json
-{
-  "id": 1,
-  "name": "TaskFlow API",
-  "description": "My First Project",
-  "owner_id": 1
-}
-```
-
-### GET `/projects/stats/summary`
-
-Returns task statistics for the user's projects.
-
-Example response:
-
-```json
-[
-  {
-    "project_id": 1,
-    "project_name": "TaskFlow API",
-    "total_tasks": 3,
-    "completed_tasks": 1,
-    "pending_tasks": 2
-  }
-]
-```
+Returns projects belonging to the authenticated user.
 
 ---
 
-# Task Endpoints
+# Tasks
 
-### POST `/tasks/`
+## Create Task
 
-Creates a task.
+```text
+POST /tasks/
+```
 
 Example request:
 
 ```json
 {
   "title": "Complete project",
-  "description": "Finish TaskFlow assignment",
-  "priority": "high",
-  "due_date": "2026-08-15",
+  "description": "Complete TaskFlow API project",
+  "priority": "medium",
+  "due_date": null,
   "status": "Pending",
   "project_id": 1
 }
@@ -324,98 +254,74 @@ Example response:
 ```json
 {
   "title": "Complete project",
-  "description": "Finish TaskFlow assignment",
-  "priority": "high",
-  "due_date": "2026-08-15",
+  "description": "Complete TaskFlow API project",
+  "priority": "medium",
+  "due_date": null,
   "status": "Pending",
   "project_id": 1,
   "id": 1
 }
 ```
 
-### GET `/tasks/`
+## List Tasks
 
-Returns all tasks belonging to the authenticated user's projects.
-
-Example response:
-
-```json
-[
-  {
-    "title": "Complete project",
-    "description": "Finish TaskFlow assignment",
-    "priority": "high",
-    "due_date": "2026-08-15",
-    "status": "Pending",
-    "project_id": 1,
-    "id": 1
-  }
-]
+```text
+GET /tasks/
 ```
 
-### GET `/tasks/{task_id}`
+Returns tasks belonging to projects owned by the authenticated user.
 
-Returns a single task.
+## Sort Tasks by Priority
+
+```text
+GET /tasks/?sort=priority
+```
+
+Tasks are sorted using the custom insertion-sort implementation.
+
+Priority ranking:
+
+```text
+low = 1
+medium = 2
+high = 3
+```
+
+## Get Task by ID
+
+```text
+GET /tasks/{task_id}
+```
 
 Example:
 
 ```text
-GET /tasks/1
+GET /tasks/2
 ```
 
-Example response:
+## Update Task
 
-```json
-{
-  "title": "Complete project",
-  "description": "Finish TaskFlow assignment",
-  "priority": "high",
-  "due_date": "2026-08-15",
-  "status": "Pending",
-  "project_id": 1,
-  "id": 1
-}
+```text
+PUT /tasks/{task_id}
 ```
-
-### PUT `/tasks/{task_id}`
-
-Updates an existing task.
 
 Example request:
 
 ```json
 {
-  "title": "Complete TaskFlow project",
-  "description": "Finish and submit the project",
+  "title": "game updated",
+  "description": "updated test task",
   "priority": "high",
-  "due_date": "2026-08-16",
+  "due_date": "tomorrow",
   "status": "Completed",
   "project_id": 1
 }
 ```
 
-Example response:
-
-```json
-{
-  "title": "Complete TaskFlow project",
-  "description": "Finish and submit the project",
-  "priority": "high",
-  "due_date": "2026-08-16",
-  "status": "Completed",
-  "project_id": 1,
-  "id": 1
-}
-```
-
-### DELETE `/tasks/{task_id}`
-
-Deletes a task.
-
-Example:
+## Delete Task
 
 ```text
-DELETE /tasks/1
+DELETE /tasks/{task_id}
 ```
 
 Example response:
@@ -428,53 +334,46 @@ Example response:
 
 ---
 
-# Sorted Task List
-
-### GET `/tasks/?sort=priority`
-
-Returns tasks sorted by priority using the custom insertion sort algorithm.
-
-Priority order:
-
-```text
-low → medium → high
-```
-
-Example response:
-
-```json
-[
-  {
-    "title": "Read documentation",
-    "priority": "low",
-    "status": "Pending",
-    "project_id": 1,
-    "id": 2
-  },
-  {
-    "title": "Complete project",
-    "priority": "high",
-    "status": "Pending",
-    "project_id": 1,
-    "id": 1
-  }
-]
-```
-
----
-
 # Task Search
 
-### GET `/tasks/search/`
-
-Searches tasks using either binary search or linear search.
+TaskFlow supports two custom search algorithms.
 
 ## Binary Search
 
-Example:
+```text
+GET /tasks/search?title=game&algo=binary
+```
+
+Before binary search, the task index is sorted using custom insertion sort.
+
+Binary search provides:
 
 ```text
-GET /tasks/search/?title=Complete%20project&algo=binary
+O(log n)
+```
+
+search complexity after sorting.
+
+## Linear Search
+
+```text
+GET /tasks/search?title=game&algo=linear
+```
+
+Linear search checks records sequentially.
+
+Worst-case complexity:
+
+```text
+O(n)
+```
+
+---
+
+# Task Statistics
+
+```text
+GET /projects/stats/summary
 ```
 
 Example response:
@@ -482,217 +381,230 @@ Example response:
 ```json
 [
   {
-    "title": "Complete project",
-    "description": "Finish TaskFlow assignment",
-    "priority": "high",
-    "due_date": "2026-08-15",
-    "status": "Pending",
     "project_id": 1,
-    "id": 1
+    "project_name": "TaskFlow API",
+    "total_tasks": 1,
+    "completed_tasks": 0,
+    "pending_tasks": 1
   }
 ]
 ```
 
-## Linear Search
-
-Example:
-
-```text
-GET /tasks/search/?title=Complete%20project&algo=linear
-```
-
-The endpoint also supports partial title matching when an exact match is not found.
+Statistics are calculated using SQL aggregate operations.
 
 ---
 
-# AI-Assisted Quick Add
+# Algorithms Engine
 
-### POST `/tasks/quick-add`
-
-Creates a task using the rule-based AI-assisted parser.
-
-The feature does not require an API key or external network request.
-
-Example request:
-
-```json
-{
-  "description": "Complete the project tomorrow with high priority",
-  "project_id": 1
-}
-```
-
-Example response:
-
-```json
-{
-  "title": "Complete the project",
-  "description": "Complete the project tomorrow with high priority",
-  "priority": "high",
-  "due_date": "2026-08-11",
-  "status": "Pending",
-  "project_id": 1,
-  "id": 2
-}
-```
-
----
-
-# Algorithms
-
-TaskFlow implements custom searching and sorting algorithms in:
-
-```text
-backend/algorithms/sorting_searching.py
-```
+TaskFlow implements the following algorithms manually rather than relying on Python's built-in sorting/searching functions.
 
 ## Insertion Sort
 
-Insertion sort is used to sort task records by priority and to prepare task records for binary search.
+Insertion sort is used for:
 
-Time complexity:
+* Sorting tasks by priority
+* Preparing task data for binary search
+
+Complexity:
 
 ```text
 Best Case:    O(n)
 Average Case: O(n²)
 Worst Case:   O(n²)
-```
-
-Space complexity:
-
-```text
-O(1)
+Space:        O(1)
 ```
 
 ## Binary Search
 
-Binary search is used to search an ordered task index.
+Binary search operates on a sorted list.
 
-Time complexity:
+Complexity:
 
 ```text
 Best Case:    O(1)
 Average Case: O(log n)
 Worst Case:   O(log n)
-```
-
-Space complexity:
-
-```text
-O(1)
+Space:        O(1)
 ```
 
 ## Linear Search
 
-Linear search checks task records sequentially.
+Linear search checks records one by one.
 
-Time complexity:
+Complexity:
 
 ```text
 Best Case:    O(1)
 Average Case: O(n)
 Worst Case:   O(n)
-```
-
-Space complexity:
-
-```text
-O(1)
+Space:        O(1)
 ```
 
 ---
 
-# Algorithm Benchmark Results
+# Algorithm Testing
 
-The benchmark script compares the custom algorithms using different data sizes.
-
-## Data Size: 10
+Algorithm checks are implemented in:
 
 ```text
-Insertion Sort comparisons: 45
-Binary Search: index = 4, comparisons = 1
-Linear Search: index = 5, comparisons = 6
+backend/algorithms/check_algorithms.py
 ```
 
-## Data Size: 500
+Run:
+
+```powershell
+python algorithms\check_algorithms.py
+```
+
+Successful test output includes:
 
 ```text
-Insertion Sort comparisons: 124750
-Binary Search: index = 249, comparisons = 1
-Linear Search: index = 250, comparisons = 251
+PASS: insertion_sort empty list
+PASS: insertion_sort single element
+PASS: binary_search first index
+PASS: binary_search middle index
+PASS: binary_search last index
+PASS: binary_search not found
+PASS: insertion_sort_count sorted result
+PASS: insertion_sort_count comparison count
+PASS: binary_search_count
+PASS: linear_search_count absent value
+
+Algorithm checks completed.
 ```
-
-## Data Size: 3000
-
-```text
-Insertion Sort comparisons: 4498500
-Binary Search: index = 1499, comparisons = 1
-Linear Search: index = 1500, comparisons = 1501
-```
-
-The benchmark demonstrates the expected difference between quadratic insertion sort, logarithmic binary search, and linear search.
 
 ---
 
-# AI Quick-Add Technique
+# Benchmark Results
 
-The Quick Add feature uses a local rule-based parser rather than a real external LLM.
+Benchmark implementation:
 
-The parser receives a natural-language task description and extracts useful task information such as:
+```text
+backend/algorithms/benchmark.py
+```
 
-* Task title
+Run:
+
+```powershell
+python algorithms\benchmark.py
+```
+
+Observed comparison counts:
+
+| Data Size | Insertion Sort | Binary Search | Linear Search |
+| --------: | -------------: | ------------: | ------------: |
+|        10 |             45 |             1 |             6 |
+|       500 |        124,750 |             1 |           251 |
+|     3,000 |      4,498,500 |             1 |         1,501 |
+
+The benchmark demonstrates the expected growth of insertion sort and linear search compared with binary search.
+
+---
+
+# AI Quick Add
+
+TaskFlow provides an AI-assisted Quick Add feature.
+
+The feature accepts a natural-language task description and converts it into a structured task containing:
+
+* Title
 * Priority
-* Due date
+* Due-date hint
+* Description
+* Status
+* Project
 
-The parsed information is then used to create a normal TaskFlow task.
+The required implementation is a deterministic mock AI parser and does not require an external API key or network request.
 
-No API key is required and no external network request is made.
+Endpoint:
 
-## Why This Technique Is Used
+```text
+POST /tasks/quick-add
+```
 
-A rule-based parser provides a simple and deterministic implementation for the assignment. It also keeps the required Quick Add feature independent of paid AI services or external API availability.
+Example request:
+
+```json
+{
+  "description": "Complete project tomorrow with high priority",
+  "project_id": 4
+}
+```
+
+Example response:
+
+```json
+{
+  "title": "Complete project with",
+  "description": "Complete project tomorrow with high priority",
+  "priority": "high",
+  "due_date": "tomorrow",
+  "status": "Pending",
+  "project_id": 4,
+  "id": 19
+}
+```
 
 ---
 
-# Five Quick-Add Examples
+# AI Parser Logic
+
+The parser recognizes priority keywords such as:
+
+```text
+urgent
+asap
+whenever
+low priority
+```
+
+It recognizes due-date phrases such as:
+
+```text
+today
+tomorrow
+next week
+next monday
+next tuesday
+next wednesday
+next thursday
+next friday
+next saturday
+next sunday
+monday
+tuesday
+wednesday
+thursday
+friday
+saturday
+sunday
+```
+
+The parser removes recognized priority and date phrases from the generated title.
+
+---
+
+# AI Quick Add Examples
 
 ## Example 1
 
 Input:
 
 ```text
-Complete project tomorrow with high priority
+Finish report today
 ```
 
 Parsed result:
 
 ```json
 {
-  "title": "Complete project",
-  "priority": "high",
-  "due_date": "tomorrow"
-}
-```
-
-## Example 2
-
-Input:
-
-```text
-Buy groceries today
-```
-
-Parsed result:
-
-```json
-{
-  "title": "Buy groceries",
+  "title": "Finish report",
   "priority": "medium",
   "due_date": "today"
 }
 ```
 
-## Example 3
+## Example 2
 
 Input:
 
@@ -710,7 +622,7 @@ Parsed result:
 }
 ```
 
-## Example 4
+## Example 3
 
 Input:
 
@@ -728,7 +640,7 @@ Parsed result:
 }
 ```
 
-## Example 5
+## Example 4
 
 Input:
 
@@ -746,6 +658,24 @@ Parsed result:
 }
 ```
 
+## Example 5
+
+Input:
+
+```text
+Complete project tomorrow with high priority
+```
+
+Parsed result:
+
+```json
+{
+  "title": "Complete project with",
+  "priority": "high",
+  "due_date": "tomorrow"
+}
+```
+
 ---
 
 # LocalStorage
@@ -758,9 +688,13 @@ This allows the dashboard to retain cached task information in the browser and r
 
 # Request Timing Middleware
 
-FastAPI middleware measures the processing time of each incoming request.
+FastAPI middleware measures the processing time of incoming requests.
 
-The backend prints the request method, path and processing time in milliseconds.
+The backend logs:
+
+* HTTP method
+* Request path
+* Processing time in milliseconds
 
 Example:
 
@@ -772,13 +706,17 @@ GET /tasks/ 3.42 ms
 
 # CORS
 
-The FastAPI application includes CORS configuration to allow requests from the configured local frontend and deployed frontend.
+The FastAPI application includes CORS configuration to allow requests from the configured frontend origins.
+
+This enables the deployed frontend to communicate with the FastAPI backend.
 
 ---
 
 # Deployment
 
-The TaskFlow backend is deployed as a live FastAPI service.
+## Backend
+
+The TaskFlow backend is deployed using Render.
 
 Live API:
 
@@ -786,21 +724,47 @@ Live API:
 https://taskflow-api-ax00.onrender.com
 ```
 
-Swagger API documentation:
+Swagger documentation:
 
 ```text
 https://taskflow-api-ax00.onrender.com/docs
 ```
 
+## Frontend
+
+The frontend is deployed separately and communicates with the deployed FastAPI backend through the configured API URL.
+
 ---
 
 # Git Workflow
 
-The project uses Git with a feature-branch workflow.
+TaskFlow uses a feature-branch workflow.
 
-The `assignment-complete` branch was used for assignment development and contains multiple commits before being merged into the `main` branch.
+The assignment development was completed on:
 
-The repository therefore contains the required feature-branch and merge history.
+```text
+assignment-complete
+```
+
+The completed changes were then merged into:
+
+```text
+main
+```
+
+The final production code is available on the `main` branch.
+
+The repository contains the assignment development and merge history.
+
+---
+
+# Repository
+
+GitHub repository:
+
+```text
+https://github.com/gv063843-cell/TaskFlow
+```
 
 ---
 
@@ -808,12 +772,8 @@ The repository therefore contains the required feature-branch and merge history.
 
 TaskFlow is maintained as a single GitHub repository containing:
 
-* `backend/` — FastAPI backend, SQLAlchemy models, algorithms and AI quick-add parser
+* `backend/` — FastAPI backend, SQLAlchemy models, algorithms and AI Quick Add parser
 * `frontend/` — HTML, CSS and JavaScript dashboard
 * `README.md` — project setup, API documentation, algorithms, benchmarks and AI Quick Add documentation
 
-GitHub repository:
-
-```text
-https://github.com/gv063843-cell/TaskFlow
-```
+The application has been tested locally and the backend is deployed as a live FastAPI service.
