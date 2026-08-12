@@ -21,7 +21,6 @@
 
 <body>
 
-
 <!-- =========================
      APP HEADER
 ========================== -->
@@ -41,12 +40,18 @@
 
     </div>
 
-    <button
-        id="logoutBtn"
-        class="logout-btn"
-    >
-        Logout
-    </button>
+    <div class="header-actions">
+
+        <!-- LOGOUT -->
+        <button
+            id="logoutBtn"
+            class="logout-btn"
+            type="button"
+        >
+            Logout
+        </button>
+
+    </div>
 
 </header>
 
@@ -62,7 +67,10 @@
          PREMIUM HERO SLIDER
     ========================== -->
 
-    <section class="hero-slider" id="heroSlider">
+    <section
+        class="hero-slider"
+        id="heroSlider"
+    >
 
         <!-- SLIDE 1 -->
 
@@ -96,26 +104,49 @@
 
             </div>
 
+
             <div class="hero-visual">
 
                 <div class="floating-card card-one">
+
                     <span>✓</span>
+
                     <div>
-                        <strong>Smart Tasks</strong>
-                        <small>Organized automatically</small>
+
+                        <strong>
+                            Smart Tasks
+                        </strong>
+
+                        <small>
+                            Organized automatically
+                        </small>
+
                     </div>
+
                 </div>
+
 
                 <div class="hero-main-icon">
                     ✦
                 </div>
 
+
                 <div class="floating-card card-two">
+
                     <span>⚡</span>
+
                     <div>
-                        <strong>Stay Productive</strong>
-                        <small>Get more done</small>
+
+                        <strong>
+                            Stay Productive
+                        </strong>
+
+                        <small>
+                            Get more done
+                        </small>
+
                     </div>
+
                 </div>
 
             </div>
@@ -155,24 +186,36 @@
 
             </div>
 
+
             <div class="hero-visual">
 
                 <div class="project-preview">
 
                     <div class="preview-top">
+
                         <span>📁</span>
-                        <strong>Website Project</strong>
+
+                        <strong>
+                            Website Project
+                        </strong>
+
                     </div>
+
 
                     <div class="preview-progress">
 
                         <div class="preview-progress-top">
 
-                            <small>Progress</small>
+                            <small>
+                                Progress
+                            </small>
 
-                            <strong>75%</strong>
+                            <strong>
+                                75%
+                            </strong>
 
                         </div>
+
 
                         <div class="preview-bar">
 
@@ -185,11 +228,20 @@
 
                     </div>
 
+
                     <div class="preview-tasks">
 
-                        <span>✓ Homepage</span>
-                        <span>✓ Design</span>
-                        <span>○ Testing</span>
+                        <span>
+                            ✓ Homepage
+                        </span>
+
+                        <span>
+                            ✓ Design
+                        </span>
+
+                        <span>
+                            ○ Testing
+                        </span>
 
                     </div>
 
@@ -232,33 +284,64 @@
 
             </div>
 
+
             <div class="hero-visual">
 
                 <div class="stats-preview">
 
                     <div class="stats-preview-header">
-                        <span>Project Overview</span>
-                        <strong>Today</strong>
+
+                        <span>
+                            Project Overview
+                        </span>
+
+                        <strong>
+                            Today
+                        </strong>
+
                     </div>
 
+
                     <div class="stats-number">
+
                         24
-                        <small>Tasks</small>
+
+                        <small>
+                            Tasks
+                        </small>
+
                     </div>
+
 
                     <div class="mini-stats">
 
                         <div>
-                            <strong>18</strong>
-                            <small>Completed</small>
+
+                            <strong>
+                                18
+                            </strong>
+
+                            <small>
+                                Completed
+                            </small>
+
                         </div>
 
+
                         <div>
-                            <strong>6</strong>
-                            <small>Pending</small>
+
+                            <strong>
+                                6
+                            </strong>
+
+                            <small>
+                                Pending
+                            </small>
+
                         </div>
 
                     </div>
+
 
                     <div class="mini-progress">
 
@@ -309,12 +392,14 @@
                 aria-label="Slide 1"
             ></button>
 
+
             <button
                 class="hero-dot"
                 data-slide="1"
                 type="button"
                 aria-label="Slide 2"
             ></button>
+
 
             <button
                 class="hero-dot"
@@ -369,7 +454,9 @@
 
             <div>
 
-                <h2>Projects</h2>
+                <h2>
+                    Projects
+                </h2>
 
                 <p>
                     Select or create a project
@@ -410,6 +497,7 @@
             >
                 ✏️ Edit Project
             </button>
+
 
             <button
                 id="deleteProjectBtn"
@@ -538,7 +626,9 @@
 
                 <div>
 
-                    <h2>Add New Task</h2>
+                    <h2>
+                        Add New Task
+                    </h2>
 
                     <p>
                         Create a task manually
@@ -633,7 +723,9 @@
 
                 <div>
 
-                    <h2>AI Quick Add</h2>
+                    <h2>
+                        AI Quick Add
+                    </h2>
 
                     <p>
                         Describe it naturally
@@ -646,7 +738,9 @@
 
             <div class="ai-info">
 
-                <span>AI</span>
+                <span>
+                    AI
+                </span>
 
                 <p>
                     Tell TaskFlow what you need
@@ -697,7 +791,9 @@
 
             <div>
 
-                <h2>Find a Task</h2>
+                <h2>
+                    Find a Task
+                </h2>
 
                 <p>
                     Search within your current project
@@ -716,12 +812,14 @@
                 placeholder="Search task..."
             >
 
+
             <button
                 id="searchBtn"
                 class="primary-btn"
             >
                 Search
             </button>
+
 
             <button
                 id="showAllBtn"
@@ -749,7 +847,9 @@
 
             <div>
 
-                <h2>Project Statistics</h2>
+                <h2>
+                    Project Statistics
+                </h2>
 
                 <p>
                     Track your project progress
@@ -789,7 +889,9 @@
 
                 <div>
 
-                    <h2>Your Tasks</h2>
+                    <h2>
+                        Your Tasks
+                    </h2>
 
                     <p>
                         Tasks in the selected project
@@ -806,8 +908,182 @@
 
     </section>
 
-
 </main>
+
+
+<!-- =========================
+     NORMAL RESPONSIVE CHATBOT
+========================== -->
+
+<div
+    class="chatbot-wrapper"
+    id="chatbotWrapper"
+>
+
+
+    <!-- CHAT WINDOW -->
+
+    <div
+        class="chatbot-window"
+        id="chatbotWindow"
+        aria-hidden="true"
+    >
+
+
+        <!-- CHAT HEADER -->
+
+        <div class="chatbot-header">
+
+            <div class="chatbot-title-area">
+
+                <div class="chatbot-avatar">
+                    🤖
+                </div>
+
+                <div>
+
+                    <strong>
+                        TaskFlow Assistant
+                    </strong>
+
+                    <span>
+                        <i></i>
+                        Online
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="chatbot-close"
+                id="chatbotClose"
+                aria-label="Close chatbot"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- CHAT MESSAGES -->
+
+        <div
+            class="chatbot-messages"
+            id="chatbotMessages"
+            aria-live="polite"
+        >
+
+            <div class="chat-message bot-message">
+
+                <div class="message-avatar">
+                    🤖
+                </div>
+
+                <div class="message-content">
+
+                    <span class="message-name">
+                        TaskFlow Assistant
+                    </span>
+
+                    <p>
+                        Hi! 👋 I'm your TaskFlow Assistant.
+                        How can I help you today?
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- QUICK REPLIES -->
+
+        <div
+            class="chatbot-quick-replies"
+            id="chatbotQuickReplies"
+        >
+
+            <button
+                type="button"
+                data-message="How do I create a project?"
+            >
+                Create a project
+            </button>
+
+
+            <button
+                type="button"
+                data-message="How do I add a task?"
+            >
+                Add a task
+            </button>
+
+
+            <button
+                type="button"
+                data-message="What is TaskFlow?"
+            >
+                About TaskFlow
+            </button>
+
+        </div>
+
+
+        <!-- CHAT INPUT -->
+
+        <form
+            class="chatbot-input-area"
+            id="chatbotForm"
+        >
+
+            <input
+                type="text"
+                id="chatbotInput"
+                placeholder="Type your message..."
+                autocomplete="off"
+                maxlength="500"
+                aria-label="Type your message"
+            >
+
+
+            <button
+                type="submit"
+                id="chatbotSend"
+                aria-label="Send message"
+            >
+                ➤
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- FLOATING CHAT BUTTON -->
+
+    <button
+        type="button"
+        class="chatbot-toggle"
+        id="chatbotToggle"
+        aria-label="Open TaskFlow Assistant"
+        aria-expanded="false"
+    >
+
+        <span class="chatbot-toggle-icon">
+            💬
+        </span>
+
+        <span class="chatbot-notification">
+            1
+        </span>
+
+    </button>
+
+</div>
 
 
 <!-- =========================
@@ -828,6 +1104,7 @@
 ========================== -->
 
 <script src="./script.js"></script>
+
 
 </body>
 
